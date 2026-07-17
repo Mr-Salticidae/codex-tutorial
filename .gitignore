@@ -1,0 +1,14 @@
+# 大文件媒体不入库（配图 png/jpg 正常入库）
+*.mp4
+*.mov
+*.psd
+*.zip
+
+# 凭证
+.dingtalk.env
+.env
+
+# 系统杂项
+.DS_Store
+Thumbs.db
+desktop.ini
