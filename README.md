@@ -13,8 +13,8 @@
 ## 二、板块 ↔ 源项目映射
 
 | 母教程板块（跳） | 源项目 | 本地路径 | GitHub 仓库 |
-|---|---|---|---|
-| 台风实时预测 | 风眼 Typhoon Eye（台风实时信息 + 分级应急准备单页应用） | 暂无本地克隆（待 clone） | [Mr-Salticidae/typhoon-eye](https://github.com/Mr-Salticidae/typhoon-eye)（另有宣传片工程 typhoon-eye-promo） |
+| --- | --- | --- | --- |
+| 台风实时预测 | 风眼 Typhoon Eye（台风实时信息 + 分级应急准备单页应用） | `E:\typhoon-eye`（2026-07-17 克隆） | [Mr-Salticidae/typhoon-eye](https://github.com/Mr-Salticidae/typhoon-eye)（另有宣传片工程 typhoon-eye-promo） |
 | 人生模拟器制作 | 镜像自我·人生预演（BW展位互动影游：分支叙事 + 迷你游戏 + 本地AI报告） | `E:\mirror-life-rehearsal` | [Mr-Salticidae/mirror-life-rehearsal](https://github.com/Mr-Salticidae/mirror-life-rehearsal) |
 | 桌面小程序开发 | 工位池塘 desk-pond（2D 像素桌面陪伴小游戏：番茄钟 × 钓鱼/种树） | `E:\desk-pond` | [Mr-Salticidae/desk-pond](https://github.com/Mr-Salticidae/desk-pond) |
 
@@ -43,7 +43,7 @@
 
 ## 五、目录结构
 
-```
+```text
 docs/                 大纲、正文、附件版（文件名：<板块名>_教程大纲_v0.1.md 等）
 docs/images/          配图，按板块分子目录
 reference/            母教程节选、源项目复盘等参考资料（只读引用，不改写）
@@ -52,14 +52,16 @@ reference/            母教程节选、源项目复盘等参考资料（只读�
 ## 六、协作分工
 
 | 角色 | 成员 | 职责 |
-|---|---|---|
+| --- | --- | --- |
 | 作者 / 审核 | 跳蛛先生（Mr-Salticidae） | 大纲与正文的定稿权，单级审核 |
 | 协助 | Claude | 反推流程、起草大纲与正文、配图整理、附件版收敛 |
 
 ## 七、当前状态与待办
 
 - [x] 立项、目录结构、GitHub 仓库（2026-07-17）
-- [ ] clone typhoon-eye 到本地；核对三个源项目复盘是否齐备（缺则先补复盘）
+- [x] clone typhoon-eye 到本地 `E:\typhoon-eye`（2026-07-17；git 历史 382 提交中开发提交 73 个，其余为定时数据更新，反推时按 `data:` 前缀过滤）
+- [x] 风眼复盘确认齐备：knowledge-base `09_平台工程/云端定时内容生产连环坑复盘_全绿不等于已发_v1`、`09_平台工程/B站Toy同步事故复盘_版本指纹与外部cron兜底_v1`、`08_对外分发/B站Toy发布后更新不动了_三环断裂排障复盘_公开版`
+- [ ] 核对 mirror-life-rehearsal、desk-pond 复盘是否齐备（缺则先补复盘）
 - [ ] 板块「台风实时预测」大纲 v0.1
 - [ ] 板块「人生模拟器制作」大纲 v0.1
 - [ ] 板块「桌面小程序开发」大纲 v0.1
