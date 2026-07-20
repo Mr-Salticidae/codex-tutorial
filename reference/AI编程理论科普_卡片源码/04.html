@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+  .loop { display: flex; align-items: center; gap: 26px; width: 100%; }
+  .node {
+    flex: 1; padding: 40px 34px; text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .idx { font-size: 25px; letter-spacing: .28em; color: #6E7482; margin-bottom: 16px; }
+  .act { font-size: 52px; font-weight: 700; color: #E8C88A; margin-bottom: 8px; letter-spacing: .08em; }
+  .who { font-size: 25px; color: #8A8F9C; margin-bottom: 22px; letter-spacing: .06em; }
+  .txt { font-size: 28px; line-height: 1.7; color: #C3C9D4; }
+  .arr { flex: none; font-size: 46px; color: #E8C88A; opacity: .75; }
+  .back {
+    margin-top: 34px; width: 100%; text-align: center;
+    font-size: 28px; color: #8A8F9C; letter-spacing: .06em;
+  }
+  .back .line {
+    display: block; height: 1px; margin-bottom: 20px;
+    background: linear-gradient(90deg, transparent, rgba(232,200,138,.42), transparent);
+  }
+  .concl { margin-top: 44px; font-size: 35px; text-align: center; line-height: 1.75; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">v i b e &nbsp;&nbsp; c o d i n g</div>
+  <h1>说 → 做 → 看 → 改</h1>
+  <div class="sub">2025 年初由 Andrej Karpathy 提出 · 直译「凭感觉编程」</div>
+
+  <div class="loop">
+    <div class="card node">
+      <div class="idx">S T E P &nbsp;1</div>
+      <div class="act">说</div>
+      <div class="who">你</div>
+      <div class="txt">用大白话描述<br>你要什么</div>
+    </div>
+    <div class="arr">➜</div>
+    <div class="card node">
+      <div class="idx">S T E P &nbsp;2</div>
+      <div class="act">做</div>
+      <div class="who">AI</div>
+      <div class="txt">写代码<br>并且跑起来</div>
+    </div>
+    <div class="arr">➜</div>
+    <div class="card node">
+      <div class="idx">S T E P &nbsp;3</div>
+      <div class="act">看</div>
+      <div class="who">你</div>
+      <div class="txt">看效果<br><span class="gold">不是看代码</span></div>
+    </div>
+    <div class="arr">➜</div>
+    <div class="card node">
+      <div class="idx">S T E P &nbsp;4</div>
+      <div class="act">改</div>
+      <div class="who">你</div>
+      <div class="txt">不满意就<br>接着提意见</div>
+    </div>
+  </div>
+
+  <div class="back">
+    <span class="line"></span>
+    ↺　回到第 1 步，改到满意为止
+  </div>
+
+  <div class="concl">
+    这套课后面的<strong>所有实战</strong>，本质上都是这个循环的重复<br>
+    <span class="dim" style="font-size:30px">你说一段话，Codex 给一个结果</span>
+  </div>
+
+  <div class="foot">像找装修队 · 你不砌墙，但你说得清要什么、看得出哪儿歪了</div>
+</body>
+</html>

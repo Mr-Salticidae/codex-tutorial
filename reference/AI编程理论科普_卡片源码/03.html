@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+  .row { display: flex; gap: 44px; width: 100%; align-items: stretch; }
+  .col { flex: 1; display: flex; flex-direction: column; padding: 46px 48px; }
+  .col.chat { border-style: dashed; border-color: rgba(255,255,255,.13); }
+  .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .name { font-size: 42px; font-weight: 700; letter-spacing: .03em; }
+  .chat .name { color: #C3C9D4; }
+  .agent .name { color: #E8C88A; }
+  .role { font-size: 28px; color: #8A8F9C; margin-bottom: 34px; }
+  .steps { flex: 1; }
+  .step {
+    display: flex; align-items: flex-start; gap: 18px;
+    font-size: 29px; line-height: 1.6; margin-bottom: 20px;
+  }
+  .mk { flex: none; width: 34px; font-weight: 700; }
+  .chat .you { color: #C77B6B; }
+  .chat .it { color: #E8C88A; }
+  .agent .it { color: #E8C88A; }
+  .step .t { color: #C3C9D4; }
+  .step.off .t { color: #8A8F9C; }
+  .verdict {
+    margin-top: 26px; padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,.09);
+    font-size: 30px; line-height: 1.7;
+  }
+  .chat .verdict { color: #9AA0AD; }
+  .agent .verdict { color: #F3D9A4; }
+  .concl { margin-top: 50px; font-size: 36px; letter-spacing: .04em; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">A I 编 程 理 论 科 普</div>
+  <h1>只会「说」的 AI，与直接「做」的 AI</h1>
+  <div class="sub">同样一句「帮我做个网页」，两种 AI 给你的东西完全不同</div>
+
+  <div class="row">
+    <div class="card col chat">
+      <div class="hd">
+        <div class="name">对话 AI（Chat）</div>
+        <div class="tag" style="border-color:rgba(255,255,255,.22);color:#9AA0AD">只负责说</div>
+      </div>
+      <div class="role">给你一段代码，然后就没有然后了</div>
+      <div class="steps">
+        <div class="step"><span class="mk it">AI</span><span class="t">写出一大段代码，贴在对话框里</span></div>
+        <div class="step off"><span class="mk you">你</span><span class="t">新建什么文件？</span></div>
+        <div class="step off"><span class="mk you">你</span><span class="t">代码粘到哪里？</span></div>
+        <div class="step off"><span class="mk you">你</span><span class="t">怎么运行？</span></div>
+        <div class="step off"><span class="mk you">你</span><span class="t">报错了怎么办？</span></div>
+      </div>
+      <div class="verdict">最容易的部分它做了，<br>最难的部分留给了你。</div>
+    </div>
+
+    <div class="card col agent">
+      <div class="hd">
+        <div class="name">智能体 AI（Agent）</div>
+        <div class="tag">直接动手做</div>
+      </div>
+      <div class="role">在你的电脑上跑完全程，端出成品</div>
+      <div class="steps">
+        <div class="step"><span class="mk it">AI</span><span class="t">自己建文件夹、建文件</span></div>
+        <div class="step"><span class="mk it">AI</span><span class="t">自己写代码</span></div>
+        <div class="step"><span class="mk it">AI</span><span class="t">自己运行</span></div>
+        <div class="step"><span class="mk it">AI</span><span class="t">自己看报错、自己修好</span></div>
+        <div class="step"><span class="mk it">AI</span><span class="t">把能用的成品端到你面前</span></div>
+      </div>
+      <div class="verdict">你下任务，它跑完全程——<br>这就是前面章节说的「智能管家」。</div>
+    </div>
+  </div>
+
+  <div class="concl">你的角色也变了：<strong>不是操作工，而是甲方</strong>——提需求、看结果、给意见</div>
+  <div class="foot">Codex 属于后者</div>
+</body>
+</html>

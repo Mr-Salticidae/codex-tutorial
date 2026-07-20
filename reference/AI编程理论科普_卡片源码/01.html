@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+  .row { display: flex; align-items: stretch; gap: 40px; width: 100%; }
+  .side { flex: 1; display: flex; flex-direction: column; }
+  .side .head { font-size: 34px; font-weight: 700; margin-bottom: 26px; letter-spacing: 0.04em; }
+  .recipe {
+    flex: 1;
+    font-size: 30px;
+    line-height: 2.0;
+    color: #C3C9D4;
+  }
+  .bad .recipe { color: #8A8F9C; }
+  .bad { border-style: dashed; border-color: rgba(255,255,255,0.13); }
+  .x { color: #C77B6B; font-weight: 700; margin-right: 12px; }
+  .ok { color: #E8C88A; font-weight: 700; margin-right: 12px; }
+  .arrow { display: flex; align-items: center; font-size: 54px; color: #E8C88A; opacity: .8; }
+  .note { font-size: 27px; color: #8A8F9C; margin-top: 20px; line-height: 1.8; }
+  .concl {
+    margin-top: 52px; width: 100%; text-align: center;
+    font-size: 36px; letter-spacing: 0.05em; line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+  <div class="eyebrow">A I 编 程 理 论 科 普</div>
+  <h1>编程 = 给电脑写一份说明书</h1>
+  <div class="sub">电脑好比一个手速极快、但完全不会做饭的机器人</div>
+
+  <div class="row">
+    <div class="card bad side">
+      <div class="head dim">你对人说话 · 机器人听不懂</div>
+      <div class="recipe">
+        <div><span class="x">✕</span>油热了下菜</div>
+        <div><span class="x">✕</span>炒到差不多就出锅</div>
+        <div><span class="x">✕</span>盐适量</div>
+      </div>
+      <div class="note">「热了」是多热？「差不多」是多久？<br>「适量」是几克？——它一步都不会猜。</div>
+    </div>
+
+    <div class="arrow">➜</div>
+
+    <div class="card side">
+      <div class="head gold">写成说明书 · 每步都精确</div>
+      <div class="recipe">
+        <div><span class="ok">✓</span>倒油 5 毫升</div>
+        <div><span class="ok">✓</span>中火加热 30 秒</div>
+        <div><span class="ok">✓</span>放入青菜 200 克，翻炒 60 下</div>
+      </div>
+      <div class="note">每一步精确、每一步都不能省——<br>这就是电脑能照着执行的说明书。</div>
+    </div>
+  </div>
+
+  <div class="concl">
+    这份说明书就是<strong>程序</strong>　·　写说明书用的语言就是<strong>代码</strong><br>
+    <span class="dim" style="font-size:30px">Python、JavaScript…… 只是说明书的不同语言版本</span>
+  </div>
+
+  <div class="foot">编程不是数学 · 是把事情说清楚</div>
+</body>
+</html>

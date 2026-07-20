@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+  .grid { display: flex; flex-direction: column; gap: 30px; width: 100%; }
+  .lane { display: flex; align-items: center; gap: 36px; }
+  .num {
+    width: 92px; height: 92px; flex: none;
+    border: 1px solid rgba(232,200,138,.45); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px; color: #E8C88A;
+  }
+  .before, .after { flex: 1; padding: 32px 38px; }
+  .before { border-style: dashed; border-color: rgba(255,255,255,.13); }
+  .ttl { font-size: 33px; font-weight: 700; margin-bottom: 14px; letter-spacing: .03em; }
+  .before .ttl { color: #C3C9D4; }
+  .after .ttl { color: #E8C88A; }
+  .desc { font-size: 27px; line-height: 1.75; color: #9AA0AD; }
+  .after .desc { color: #C3C9D4; }
+  .mid { flex: none; font-size: 44px; color: #E8C88A; opacity: .75; }
+  .heads { display: flex; gap: 36px; width: 100%; margin-bottom: 18px; padding-left: 128px; }
+  .heads div { flex: 1; font-size: 27px; letter-spacing: .2em; color: #6E7482; }
+  .heads .r { padding-left: 82px; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">A I 编 程 理 论 科 普</div>
+  <h1>三道门槛，被 AI 一条条拆掉</h1>
+  <div class="sub">这就是为什么零基础也能开始动手</div>
+
+  <div class="heads">
+    <div>以 前 · 你 自 己 扛</div>
+    <div class="r">现 在 · A I 替 你 扛</div>
+  </div>
+
+  <div class="grid">
+    <div class="lane">
+      <div class="num">1</div>
+      <div class="card before">
+        <div class="ttl">先学一门「外语」</div>
+        <div class="desc">记住成百上千个单词和语法规则，学大半年才写得出第一份说明书。</div>
+      </div>
+      <div class="mid">➜</div>
+      <div class="card after">
+        <div class="ttl">语法它全会</div>
+        <div class="desc">你说中文，它负责翻译成代码。</div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="num">2</div>
+      <div class="card before">
+        <div class="ttl">先搭好「工作台」</div>
+        <div class="desc">装一堆工具、配各种环境——很多人倒在写出第一行代码之前。</div>
+      </div>
+      <div class="mid">➜</div>
+      <div class="card after">
+        <div class="ttl">环境它帮你装</div>
+        <div class="desc">它自己在你电脑上准备妥当。</div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="num">3</div>
+      <div class="card before">
+        <div class="ttl">伺候最较真的「读者」</div>
+        <div class="desc">少个括号就全盘作废，只甩给你一段红色英文报错，让你自己猜。</div>
+      </div>
+      <div class="mid">➜</div>
+      <div class="card after">
+        <div class="ttl">报错它自己修</div>
+        <div class="desc">它看得懂报错，改到跑通为止。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">门槛从「会写代码」降到了「会说人话」</div>
+</body>
+</html>

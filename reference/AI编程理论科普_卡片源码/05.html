@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+  .three { display: flex; gap: 28px; width: 100%; margin-bottom: 44px; }
+  .k { flex: 1; padding: 26px 32px; text-align: center; }
+  .k .q { font-size: 34px; font-weight: 700; color: #E8C88A; letter-spacing: .05em; }
+  .row { display: flex; gap: 40px; width: 100%; align-items: stretch; }
+  .box { flex: 1; padding: 42px 46px; display: flex; flex-direction: column; }
+  .box.bad { border-style: dashed; border-color: rgba(255,255,255,.13); }
+  .lbl { font-size: 27px; letter-spacing: .16em; margin-bottom: 22px; }
+  .bad .lbl { color: #8A8F9C; }
+  .good .lbl { color: #E8C88A; }
+  .quote {
+    font-size: 31px; line-height: 1.85; padding: 28px 30px;
+    border-radius: 14px; background: rgba(255,255,255,.035);
+    border-left: 3px solid rgba(255,255,255,.14);
+    margin-bottom: 26px; flex: 1;
+  }
+  .bad .quote { color: #9AA0AD; }
+  .good .quote { color: #E9ECF2; border-left-color: #E8C88A; }
+  .hit { font-size: 26px; line-height: 1.9; }
+  .bad .hit { color: #8A8F9C; }
+  .good .hit { color: #C3C9D4; }
+  .chip {
+    display: inline-block; font-size: 23px; padding: 5px 16px; border-radius: 8px;
+    background: rgba(232,200,138,.13); color: #E8C88A; margin-right: 14px;
+    min-width: 104px; text-align: center;
+  }
+  .good .hit { line-height: 2.15; }
+  .miss { color: #C77B6B; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">A I 编 程 理 论 科 普</div>
+  <h1>说得越具体，结果越好</h1>
+  <div class="sub">AI 不会读心 —— 提需求时，把这三件事说清楚</div>
+
+  <div class="three">
+    <div class="card k"><div class="q">给谁用？</div></div>
+    <div class="card k"><div class="q">有什么功能？</div></div>
+    <div class="card k"><div class="q">长什么样？</div></div>
+  </div>
+
+  <div class="row">
+    <div class="card box bad">
+      <div class="lbl">模 糊 版</div>
+      <div class="quote">「帮我做个网站。」</div>
+      <div class="hit">
+        <span class="miss">✕</span> 给谁用 —— 没说<br>
+        <span class="miss">✕</span> 有什么功能 —— 没说<br>
+        <span class="miss">✕</span> 长什么样 —— 没说<br>
+        <span class="dim">AI 只能靠猜，来回改好几轮</span>
+      </div>
+    </div>
+
+    <div class="card box good">
+      <div class="lbl">具 体 版</div>
+      <div class="quote">「帮我做一个<strong>个人作品集网站</strong>，<strong>给来谈合作的客户看</strong>：首页放自我介绍和联系方式，作品页按类别展示图片，风格要<strong>黑白极简</strong>。」</div>
+      <div class="hit">
+        <span class="chip">给谁用</span>来谈合作的客户<br>
+        <span class="chip">功能</span>自我介绍 · 联系方式 · 作品分类展示<br>
+        <span class="chip">样子</span>黑白极简<br>
+        <span class="gold">一次做对的概率高得多</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">课程里每个实战的提示词，都是按这个思路写的</div>
+</body>
+</html>
