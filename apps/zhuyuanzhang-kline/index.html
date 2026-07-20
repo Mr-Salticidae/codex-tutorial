@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>朱元璋K线人生 | Above the Web</title>
+  <style>
+    :root {
+      --paper: #faf8f3;
+      --paper-2: #fffdfa;
+      --paper-3: #f1ece2;
+      --ink: #1b1813;
+      --ink-soft: #6b6357;
+      --line: #e7dfd0;
+      --accent: #6d4aff;
+      --accent-2: #c44aff;
+      --accent-soft: #efeaff;
+      --cinnabar: #c84630;
+      --cinnabar-soft: #fae7df;
+      --jade: #3f7f68;
+      --gold: #b9852d;
+      --shadow: 30, 24, 60;
+      --serif: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+      --sans: "PingFang SC", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(52rem 34rem at 50% -11rem, rgba(109, 74, 255, .18), transparent 72%),
+        radial-gradient(42rem 30rem at 106% 24%, rgba(200, 70, 48, .10), transparent 68%),
+        linear-gradient(180deg, var(--paper), #f7efe4 68%, var(--paper));
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow: hidden;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      height: 100dvh;
+      min-height: 560px;
+      padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: .85rem;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1rem;
+      align-items: start;
+      max-width: 92rem;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .kicker {
+      margin: 0 0 .18rem;
+      color: var(--ink-soft);
+      font-size: .7rem;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 4vw, 3.8rem);
+      line-height: 1.06;
+      letter-spacing: .04em;
+      text-shadow: 0 20px 60px rgba(109, 74, 255, .18);
+    }
+
+    .subtitle {
+      margin: .46rem 0 0;
+      max-width: 42rem;
+      color: var(--ink-soft);
+      font-size: clamp(.82rem, 1.6vw, .98rem);
+      line-height: 1.7;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: .42rem;
+      justify-content: end;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: .24rem .68rem;
+      background: color-mix(in srgb, var(--paper-2) 86%, transparent);
+      color: var(--ink-soft);
+      font-size: .72rem;
+      white-space: nowrap;
+      box-shadow: 0 12px 34px -28px rgba(var(--shadow), .42);
+    }
+
+    .badge strong { color: var(--ink); font-weight: 600; }
+
+    .stage {
+      position: relative;
+      min-height: 0;
+      max-width: 92rem;
+      width: 100%;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(27, 24, 19, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(27, 24, 19, .035) 1px, transparent 1px),
+        color-mix(in srgb, var(--paper-2) 88%, transparent);
+      background-size: 100% 20%, 7.14% 100%, auto;
+      box-shadow: 0 28px 90px -44px rgba(var(--shadow), .55);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-caption {
+      position: absolute;
+      top: .9rem;
+      left: .95rem;
+      right: .95rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      pointer-events: none;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: .62rem;
+      flex-wrap: wrap;
+      color: var(--ink-soft);
+      font-size: .72rem;
+    }
+
+    .legend span { white-space: nowrap; }
+    .legend i {
+      display: inline-block;
+      width: .58rem;
+      height: .58rem;
+      border-radius: 2px;
+      margin-right: .28rem;
+      vertical-align: -1px;
+    }
+
+    .legend .up { background: var(--cinnabar); }
+    .legend .down { background: var(--jade); }
+    .legend .line { background: var(--accent); }
+
+    .phase {
+      color: var(--ink-soft);
+      font-size: .72rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .event-card {
+      position: absolute;
+      left: .95rem;
+      bottom: .95rem;
+      width: min(30rem, calc(100% - 1.9rem));
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+      border-radius: 8px;
+      padding: .88rem .98rem;
+      background: color-mix(in srgb, var(--paper-2) 93%, transparent);
+      box-shadow: 0 18px 54px -34px rgba(var(--shadow), .58);
+      backdrop-filter: blur(10px);
+    }
+
+    .event-card strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: clamp(1rem, 2vw, 1.18rem);
+      line-height: 1.35;
+    }
+
+    .event-card span {
+      display: block;
+      margin-top: .28rem;
+      color: var(--ink-soft);
+      font-size: .84rem;
+      line-height: 1.65;
+    }
+
+    .controls {
+      position: absolute;
+      right: .95rem;
+      bottom: .95rem;
+      display: flex;
+      align-items: center;
+      gap: .48rem;
+      padding: .42rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--paper-2) 92%, transparent);
+      box-shadow: 0 18px 48px -34px rgba(var(--shadow), .48);
+      backdrop-filter: blur(10px);
+    }
+
+    .icon-btn,
+    .text-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+
+    .icon-btn {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .text-btn {
+      min-height: 2rem;
+      border-radius: 999px;
+      padding: .28rem .72rem;
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn:hover,
+    .text-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .icon {
+      width: 1rem;
+      height: 1rem;
+      display: block;
+    }
+
+    .timeline {
+      max-width: 92rem;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(14, minmax(0, 1fr));
+      gap: .34rem;
+    }
+
+    .event-button {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: .45rem .46rem;
+      background: color-mix(in srgb, var(--paper-2) 82%, transparent);
+      cursor: pointer;
+      color: var(--ink-soft);
+      text-align: left;
+      transition: border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
+    }
+
+    .event-button:hover,
+    .event-button.is-active {
+      color: var(--ink);
+      background: var(--paper-2);
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      transform: translateY(-1px);
+    }
+
+    .event-button.is-active {
+      box-shadow: inset 0 3px 0 var(--accent);
+    }
+
+    .event-button b,
+    .event-button span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-button b {
+      font-size: .68rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: currentColor;
+    }
+
+    .event-button span {
+      margin-top: .04rem;
+      font-family: var(--serif);
+      font-size: .82rem;
+      color: var(--ink);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .app {
+        min-height: 100dvh;
+        height: auto;
+        grid-template-rows: auto minmax(24rem, 58dvh) auto;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        gap: .65rem;
+      }
+
+      .meta {
+        justify-content: start;
+        grid-template-columns: repeat(3, max-content);
+        overflow-x: auto;
+        padding-bottom: .05rem;
+      }
+
+      .timeline {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: .14rem;
+        scroll-snap-type: x proximity;
+      }
+
+      .event-button {
+        flex: 0 0 8.2rem;
+        scroll-snap-align: start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        min-height: 100dvh;
+        padding: .78rem;
+        gap: .6rem;
+        grid-template-rows: auto minmax(22rem, 59dvh) auto;
+      }
+
+      .kicker { font-size: .62rem; letter-spacing: .24em; }
+      h1 { font-size: clamp(1.62rem, 9vw, 2.4rem); }
+      .subtitle { font-size: .78rem; line-height: 1.58; }
+      .meta { grid-template-columns: repeat(3, max-content); }
+      .badge { font-size: .66rem; padding: .18rem .52rem; }
+
+      .chart-caption {
+        top: .62rem;
+        left: .65rem;
+        right: .65rem;
+        align-items: flex-start;
+      }
+
+      .phase { display: none; }
+      .legend { max-width: 13rem; gap: .42rem; font-size: .64rem; }
+
+      .event-card {
+        left: .65rem;
+        right: .65rem;
+        bottom: 3.8rem;
+        width: auto;
+        padding: .68rem .76rem;
+      }
+
+      .event-card span {
+        font-size: .76rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .controls {
+        left: .65rem;
+        right: .65rem;
+        bottom: .65rem;
+        justify-content: space-between;
+        border-radius: 8px;
+      }
+
+      .text-btn {
+        flex: 1;
+        text-align: center;
+      }
+
+      .event-button {
+        flex-basis: 7.3rem;
+        padding: .38rem .42rem;
+      }
+
+      .event-button span { font-size: .76rem; }
+    }
+
+    @media (max-width: 390px) {
+      .subtitle {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .app {
+        padding: .62rem;
+        grid-template-rows: auto minmax(20rem, 58dvh) auto;
+      }
+
+      .legend span:nth-child(3) { display: none; }
+      .event-card { bottom: 3.55rem; }
+      .event-card span { -webkit-line-clamp: 1; }
+      .icon-btn { width: 1.88rem; height: 1.88rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .icon-btn,
+      .text-btn,
+      .event-button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="kicker">Above the Web Lab · Historical Candlestick</p>
+        <h1>朱元璋K线人生</h1>
+        <p class="subtitle">把濠州孤儿、红巾军新兵、大明开国与晚年整肃压缩成一张命运走势图。数值是叙事指数，不是金融或史学定量。</p>
+      </div>
+      <div class="meta" aria-label="关键指标">
+        <span class="badge"><strong>70年</strong> 1328-1398</span>
+        <span class="badge"><strong>14根</strong> 人生K线</span>
+        <span class="badge"><strong>92</strong> 权力峰值</span>
+      </div>
+    </header>
+
+    <section class="stage" aria-label="朱元璋一生叙事K线图">
+      <h2 class="sr-only">朱元璋一生叙事K线图</h2>
+      <canvas id="chart" aria-label="红色上行、绿色回撤、紫色均线和金色冲击量组成的朱元璋一生K线图"></canvas>
+      <div class="chart-caption">
+        <div class="legend" aria-label="图例">
+          <span><i class="up"></i>阶段抬升</span>
+          <span><i class="down"></i>阶段回撤</span>
+          <span><i class="line"></i>权力均线</span>
+        </div>
+        <span class="phase" id="phaseLabel">1328 · 低位开盘</span>
+      </div>
+      <div class="event-card" id="eventCard">
+        <strong>1328 · 濠州出生</strong>
+        <span>人生低开，背景是灾荒、贫困与元末社会失序。</span>
+      </div>
+      <div class="controls" aria-label="播放控制">
+        <button class="icon-btn" id="playBtn" aria-label="播放或暂停">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z" fill="currentColor"/></svg>
+        </button>
+        <button class="icon-btn" id="resetBtn" aria-label="重播">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="text-btn" id="nextBtn">下一根</button>
+      </div>
+    </section>
+
+    <nav class="timeline" id="timeline" aria-label="历史节点"></nav>
+  </main>
+
+  <script>
+    const candles = [
+      { year: 1328, title: '濠州出生', open: 18, high: 24, low: 12, close: 16, volume: 20, phase: '低位开盘', note: '人生低开，背景是灾荒、贫困与元末社会失序。' },
+      { year: 1344, title: '亲人相继去世', open: 16, high: 18, low: 8, close: 10, volume: 72, phase: '深度回撤', note: '家庭崩塌，生存压力跌到谷底。' },
+      { year: 1347, title: '入皇觉寺为僧', open: 10, high: 20, low: 9, close: 18, volume: 38, phase: '底部支撑', note: '短暂获得栖身处，低位横盘后出现第一点支撑。' },
+      { year: 1352, title: '投奔红巾军', open: 18, high: 36, low: 14, close: 32, volume: 80, phase: '放量突破', note: '从被动求生转入乱世博弈，命运开始放量。' },
+      { year: 1356, title: '攻取集庆', open: 32, high: 52, low: 28, close: 48, volume: 86, phase: '趋势成形', note: '拿下南京基础盘，上升趋势第一次成形。' },
+      { year: 1360, title: '龙湾之战', open: 48, high: 58, low: 39, close: 55, volume: 76, phase: '承压上行', note: '顶住陈友谅压力，防守成功转为战略主动。' },
+      { year: 1363, title: '鄱阳湖决战', open: 55, high: 72, low: 42, close: 69, volume: 96, phase: '巨量决战', note: '大波动中的关键胜利，竞争格局被重新定价。' },
+      { year: 1368, title: '称帝建明', open: 69, high: 88, low: 64, close: 86, volume: 100, phase: '跳空高开', note: '从群雄之一变成新王朝创立者，权力指数跳空上行。' },
+      { year: 1370, title: '分封功臣', open: 86, high: 91, low: 78, close: 84, volume: 52, phase: '高位震荡', note: '建制推进，但功臣集团与皇权边界开始拉扯。' },
+      { year: 1380, title: '胡惟庸案', open: 84, high: 90, low: 66, close: 76, volume: 94, phase: '制度回撤', note: '废相强化皇权，制度高位伴随巨大政治回撤。' },
+      { year: 1382, title: '设锦衣卫', open: 76, high: 87, low: 70, close: 83, volume: 82, phase: '控制反弹', note: '控制力再度拉升，但整体情绪转向紧绷。' },
+      { year: 1390, title: '李善长案', open: 83, high: 88, low: 61, close: 72, volume: 88, phase: '信任下行', note: '晚年清洗扩大，权力保持高位，信任指数继续走低。' },
+      { year: 1392, title: '太子朱标去世', open: 72, high: 75, low: 54, close: 58, volume: 84, phase: '继承冲击', note: '继承安排遭遇重击，帝国未来的不确定性急剧放大。' },
+      { year: 1398, title: '病逝南京', open: 58, high: 63, low: 44, close: 50, volume: 58, phase: '一生收盘', note: '王朝已经建立，制度阴影也被留给后人。' }
+    ];
+
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const timeline = document.getElementById('timeline');
+    const eventCard = document.getElementById('eventCard');
+    const phaseLabel = document.getElementById('phaseLabel');
+    const playBtn = document.getElementById('playBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let active = 0;
+    let progress = 0;
+    let playing = !reducedMotion;
+    let lastTime = 0;
+    let dpr = 1;
+
+    function css(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+
+    function xOf(i, plot) {
+      return plot.x + (plot.w * i) / (candles.length - 1);
+    }
+
+    function yOf(value, plot) {
+      return plot.y + plot.h - (value / 96) * plot.h;
+    }
+
+    function movingAverage(index) {
+      const start = Math.max(0, index - 2);
+      const items = candles.slice(start, index + 1);
+      return items.reduce((sum, item) => sum + item.close, 0) / items.length;
+    }
+
+    function roundedRect(x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+
+    function drawLabel(text, x, y, align = 'center') {
+      ctx.textAlign = align;
+      ctx.fillText(text, x, y);
+    }
+
+    function draw() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      ctx.clearRect(0, 0, width, height);
+
+      const phone = width < 520;
+      const tablet = width < 900;
+      const plot = {
+        x: phone ? 34 : 58,
+        y: phone ? 50 : 66,
+        w: width - (phone ? 58 : 96),
+        h: height - (phone ? 122 : 156)
+      };
+      plot.h = Math.max(130, plot.h);
+
+      ctx.font = `${phone ? 10 : 12}px ${css('--sans')}`;
+      ctx.textBaseline = 'middle';
+      ctx.strokeStyle = css('--line');
+      ctx.fillStyle = css('--ink-soft');
+      ctx.lineWidth = 1;
+
+      [20, 40, 60, 80].forEach((tick) => {
+        const y = yOf(tick, plot);
+        ctx.beginPath();
+        ctx.moveTo(plot.x, y);
+        ctx.lineTo(plot.x + plot.w, y);
+        ctx.stroke();
+        drawLabel(tick, plot.x - 9, y, 'right');
+      });
+
+      ctx.textAlign = 'center';
+      candles.forEach((item, i) => {
+        if ((phone && i % 3 !== 0) || (tablet && i % 2 !== 0)) return;
+        drawLabel(String(item.year), xOf(i, plot), plot.y + plot.h + 22);
+      });
+
+      ctx.save();
+      ctx.globalAlpha = .10;
+      ctx.fillStyle = css('--jade');
+      ctx.beginPath();
+      candles.forEach((item, i) => {
+        const x = xOf(i, plot);
+        const y = yOf(item.low, plot);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      for (let i = candles.length - 1; i >= 0; i--) {
+        ctx.lineTo(xOf(i, plot), yOf(candles[i].high, plot));
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      const volumeBase = height - (phone ? 26 : 34);
+      candles.forEach((item, i) => {
+        const reveal = Math.max(0, Math.min(1, progress - i));
+        if (!reveal) return;
+        const x = xOf(i, plot);
+        const barW = Math.max(4, Math.min(phone ? 10 : 18, plot.w / candles.length * .42));
+        const barH = (item.volume / 100) * (phone ? 28 : 46) * reveal;
+        ctx.fillStyle = item.close >= item.open ? 'rgba(200, 70, 48, .25)' : 'rgba(63, 127, 104, .23)';
+        roundedRect(x - barW / 2, volumeBase - barH, barW, barH, 3);
+        ctx.fill();
+      });
+
+      ctx.strokeStyle = css('--accent');
+      ctx.lineWidth = phone ? 1.5 : 2;
+      ctx.beginPath();
+      candles.forEach((item, i) => {
+        const reveal = Math.max(0, Math.min(1, progress - i));
+        if (!reveal) return;
+        const x = xOf(i, plot);
+        const y = yOf(movingAverage(i), plot);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      candles.forEach((item, i) => {
+        const reveal = Math.max(0, Math.min(1, progress - i));
+        if (!reveal) return;
+        const x = xOf(i, plot);
+        const up = item.close >= item.open;
+        const color = up ? css('--cinnabar') : css('--jade');
+        const wickTop = yOf(item.high, plot);
+        const wickBottom = yOf(item.low, plot);
+        const openY = yOf(item.open, plot);
+        const closeY = yOf(item.close, plot);
+        const bodyTop = up ? closeY : openY;
+        const bodyBottom = up ? openY : closeY;
+        const bodyH = Math.max(4, (bodyBottom - bodyTop) * reveal);
+        const candleW = Math.max(phone ? 7 : 10, Math.min(phone ? 16 : 26, plot.w / candles.length * .56));
+
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = i === active ? 2.4 : 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, wickBottom);
+        ctx.lineTo(x, wickBottom - (wickBottom - wickTop) * reveal);
+        ctx.stroke();
+        roundedRect(x - candleW / 2, bodyTop, candleW, bodyH, 3);
+        ctx.fill();
+
+        if (i === active) {
+          ctx.save();
+          ctx.strokeStyle = color;
+          ctx.globalAlpha = .32;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(x, bodyTop + bodyH / 2, candleW * 1.12, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+      });
+    }
+
+    function setActive(index) {
+      active = Math.max(0, Math.min(candles.length - 1, index));
+      progress = Math.max(progress, active + 1);
+      const item = candles[active];
+      eventCard.innerHTML = `<strong>${item.year} · ${item.title}</strong><span>${item.note}</span>`;
+      phaseLabel.textContent = `${item.year} · ${item.phase}`;
+      document.querySelectorAll('.event-button').forEach((btn, i) => {
+        btn.classList.toggle('is-active', i === active);
+        if (i === active) btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      });
+      draw();
+    }
+
+    function renderTimeline() {
+      timeline.innerHTML = candles.map((item, i) => `
+        <button class="event-button${i === active ? ' is-active' : ''}" data-index="${i}" type="button">
+          <b>${item.year}</b>
+          <span>${item.title}</span>
+        </button>
+      `).join('');
+      timeline.addEventListener('click', (event) => {
+        const button = event.target.closest('.event-button');
+        if (!button) return;
+        playing = false;
+        updatePlayIcon();
+        setActive(Number(button.dataset.index));
+      });
+    }
+
+    function updatePlayIcon() {
+      playBtn.innerHTML = playing
+        ? '<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 5h3v14H7V5Zm7 0h3v14h-3V5Z" fill="currentColor"/></svg>'
+        : '<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z" fill="currentColor"/></svg>';
+    }
+
+    function tick(now) {
+      if (!lastTime) lastTime = now;
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+      if (playing) {
+        progress += delta * .82;
+        const nextActive = Math.min(candles.length - 1, Math.floor(Math.max(0, progress - .1)));
+        if (nextActive !== active) setActive(nextActive);
+        if (progress >= candles.length + .2) {
+          playing = false;
+          progress = candles.length;
+          updatePlayIcon();
+        }
+        draw();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    playBtn.addEventListener('click', () => {
+      playing = !playing;
+      if (playing && progress >= candles.length) {
+        active = 0;
+        progress = 0;
+        setActive(0);
+      }
+      updatePlayIcon();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      active = 0;
+      progress = 0;
+      playing = true;
+      setActive(0);
+      updatePlayIcon();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      playing = false;
+      updatePlayIcon();
+      setActive(active + 1);
+    });
+
+    window.addEventListener('resize', resize);
+    renderTimeline();
+    setActive(0);
+    updatePlayIcon();
+    resize();
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
