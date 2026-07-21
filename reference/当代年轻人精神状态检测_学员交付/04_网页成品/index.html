@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffdd57" />
+  <meta name="description" content="当代年轻人精神状态检测：16个生活现场，测测你是哪种互联网限定人类。" />
+  <title>当代年轻人精神状态检测 V1.5</title>
+  <style>
+:root {
+  --ink: #191919;
+  --paper: #fffaf0;
+  --yellow: #ffdc58;
+  --orange: #ff8a4c;
+  --pink: #ff8eb5;
+  --blue: #7fc8ff;
+  --green: #90d9a8;
+  --muted: #6e6a62;
+  --line: #191919;
+  --shadow: 7px 7px 0 #191919;
+  --radius: 24px;
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--yellow); }
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,.65) 0 5%, transparent 5.5%),
+    radial-gradient(circle at 90% 18%, rgba(255,142,181,.55) 0 6%, transparent 6.5%),
+    linear-gradient(135deg, #ffe879 0%, #ffc95e 100%);
+}
+button { font: inherit; }
+button, .answer-card { -webkit-tap-highlight-color: transparent; }
+
+.app-shell {
+  width: min(100%, 760px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: max(18px, env(safe-area-inset-top)) 18px max(26px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen { width: 100%; animation: pop .34s ease both; }
+@keyframes pop { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+
+.brand-pill, .scene-pill, .result-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+.hero-card, .scene-card, .result-card, .loading-card {
+  position: relative;
+  overflow: hidden;
+  border: 3px solid var(--line);
+  border-radius: 30px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.hero-card { padding: 32px 24px 26px; }
+.hero-card::after, .result-card::after {
+  content: "";
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  right: -55px;
+  top: -55px;
+  border: 3px solid var(--line);
+  border-radius: 50%;
+  background: var(--pink);
+  z-index: 0;
+}
+.hero-card > *, .result-card > * { position: relative; z-index: 1; }
+
+.brain { font-size: 72px; line-height: 1; margin: 20px 0 12px; filter: drop-shadow(4px 4px 0 rgba(25,25,25,.22)); }
+h1 { font-size: clamp(34px, 8vw, 56px); line-height: 1.08; margin: 0; letter-spacing: -2px; }
+.hero-subtitle { margin: 14px 0 0; font-size: 19px; font-weight: 800; }
+.hero-copy { margin: 22px 0; line-height: 1.8; font-size: 15px; color: #3f3b35; }
+.fact-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 18px 0 22px; }
+.fact { padding: 12px 8px; border: 2px solid var(--line); border-radius: 15px; background: #fff; text-align: center; font-size: 13px; font-weight: 800; }
+
+.primary-button, .secondary-button, .ghost-button {
+  min-height: 54px;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.primary-button { background: var(--orange); color: var(--ink); box-shadow: 5px 5px 0 var(--line); padding: 0 24px; }
+.primary-button:hover, .secondary-button:hover, .ghost-button:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--line); }
+.primary-button:active, .secondary-button:active, .ghost-button:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--line); }
+.secondary-button { background: #fff; box-shadow: 4px 4px 0 var(--line); padding: 0 18px; }
+.ghost-button { background: transparent; box-shadow: none; padding: 0 16px; }
+.full { width: 100%; }
+.tiny-note { text-align: center; margin: 14px 0 0; font-size: 12px; color: var(--muted); }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.progress-wrap { flex: 1; }
+.progress-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 7px; }
+.progress-track { height: 13px; border: 2px solid var(--line); border-radius: 999px; background: #fff; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--green); border-right: 2px solid var(--line); transition: width .25s ease; }
+
+.scene-card { padding: 24px 20px 22px; }
+.scene-title { margin: 15px 0 8px; font-size: clamp(28px, 7vw, 40px); letter-spacing: -1px; }
+.scene-time { color: var(--muted); font-size: 13px; font-weight: 800; }
+.chat-bubble {
+  margin: 18px 0;
+  padding: 17px 18px;
+  border: 3px solid var(--line);
+  border-radius: 8px 20px 20px 20px;
+  background: #fff;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.45;
+  box-shadow: 4px 4px 0 rgba(25,25,25,.15);
+}
+.scene-prompt { margin: 16px 0 12px; font-size: 14px; color: var(--muted); font-weight: 800; }
+.answers { display: grid; gap: 12px; }
+.answer-card {
+  width: 100%;
+  padding: 16px 17px;
+  text-align: left;
+  border: 3px solid var(--line);
+  border-radius: 17px;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.55;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--line);
+  transition: transform .12s ease, background .12s ease;
+}
+.answer-card:hover { transform: translate(-2px,-2px); background: #fff7c7; }
+.answer-card:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--line); }
+.answer-card { display: grid; grid-template-columns: 42px 1fr 34px; align-items: center; gap: 10px; }
+.answer-emoji {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: #fff7c7;
+  font-size: 21px;
+  box-shadow: 2px 2px 0 var(--line);
+}
+.answer-copy { min-width: 0; }
+.answer-face {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  font-size: 18px;
+  transform: rotate(4deg);
+}
+.answer-card:nth-child(even) .answer-face { transform: rotate(-5deg); background: #e8f6ff; }
+.answer-card:nth-child(3n) .answer-face { background: #ffe5ef; }
+.meme-sticker {
+  margin: 16px auto 0;
+  width: fit-content;
+  max-width: 100%;
+  padding: 9px 13px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 3px 3px 0 var(--line);
+  font-size: 13px;
+  font-weight: 900;
+  transform: rotate(-1deg);
+}
+
+.doctor-note { margin-top: 15px; padding: 13px 15px; border: 2px dashed var(--line); border-radius: 15px; background: #dff3ff; font-size: 13px; font-weight: 800; line-height: 1.6; }
+.bottom-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+.back-link { border: 0; background: none; text-decoration: underline; font-weight: 800; cursor: pointer; }
+
+.loading-card { padding: 40px 24px; text-align: center; }
+.loader-face { font-size: 68px; animation: wobble 1s ease-in-out infinite alternate; }
+@keyframes wobble { to { transform: rotate(7deg) scale(1.05); } }
+.loading-title { font-size: 28px; margin: 16px 0 10px; }
+.loading-line { min-height: 48px; font-weight: 800; color: #403c36; }
+.fake-progress { height: 22px; border: 3px solid var(--line); border-radius: 999px; overflow: hidden; background: #fff; margin-top: 18px; }
+.fake-progress span { display: block; height: 100%; width: 10%; background: var(--pink); transition: width .55s ease; }
+
+.result-card { padding: 28px 22px 24px; }
+.result-kicker { margin: 18px 0 4px; font-weight: 900; color: var(--muted); }
+.result-title { margin: 0 0 10px; font-size: clamp(32px, 8vw, 49px); line-height: 1.1; letter-spacing: -1.5px; }
+.result-slogan { font-size: 18px; font-weight: 900; line-height: 1.55; margin: 15px 0 20px; }
+.diagnosis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+.diagnosis-box { border: 2px solid var(--line); border-radius: 15px; background: #fff; padding: 13px; }
+.diagnosis-box strong { display: block; margin-bottom: 7px; font-size: 12px; color: var(--muted); }
+.diagnosis-box span { font-size: 17px; font-weight: 900; }
+.symptoms, .warm-note { margin-top: 18px; border: 3px solid var(--line); border-radius: 19px; padding: 17px; background: #fff; }
+.symptoms h3, .warm-note h3 { margin: 0 0 12px; font-size: 17px; }
+.symptoms ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 9px; }
+.symptoms li { font-weight: 800; line-height: 1.5; }
+.symptoms li::before { content: "☑ "; }
+.warm-note { background: #e7f8ea; line-height: 1.75; font-weight: 700; }
+.result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.result-actions .primary-button { grid-column: 1 / -1; }
+.share-text { margin-top: 15px; padding: 12px; border: 2px dashed var(--line); border-radius: 13px; font-size: 13px; line-height: 1.6; background: #fff7c7; }
+
+.modal { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 18px; background: rgba(25,25,25,.68); }
+.modal.hidden { display: none; }
+.modal-card { position: relative; width: min(100%, 390px); padding: 26px; border: 3px solid var(--line); border-radius: 24px; background: var(--paper); box-shadow: 8px 8px 0 var(--line); text-align: center; }
+.icon-button { position: absolute; right: 12px; top: 8px; border: 0; background: none; font-size: 32px; cursor: pointer; }
+.eyebrow { margin: 0; font-size: 12px; font-weight: 900; color: var(--muted); }
+.modal-card h2 { margin: 6px 0 16px; font-size: 28px; }
+.qr-box { min-height: 220px; display: grid; place-items: center; padding: 12px; background: #fff; border: 3px solid var(--line); border-radius: 18px; }
+.qr-box img, .qr-box canvas { max-width: 100%; height: auto !important; }
+.modal-hint { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 12px 18px; border: 2px solid var(--line); border-radius: 999px; background: var(--ink); color: #fff; font-weight: 800; z-index: 20; animation: toastIn .2s ease both; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } }
+
+@media (max-width: 520px) {
+  .app-shell { align-items: flex-start; padding-left: 12px; padding-right: 12px; }
+  .hero-card, .scene-card, .result-card { border-radius: 24px; }
+  .hero-card { padding: 25px 18px 22px; }
+  .fact-row { grid-template-columns: 1fr; }
+  .scene-card { padding: 20px 15px; }
+  .diagnosis-grid, .result-actions { grid-template-columns: 1fr; }
+  .result-actions .primary-button { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+
+
+.work-entry-panel {
+  margin-top: 16px;
+  padding: 16px;
+  border: 2px solid #3370ff;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eef4ff 0%, #ffffff 100%);
+  box-shadow: 0 10px 24px rgba(51,112,255,.18);
+  text-align: left;
+}
+.work-entry-label { margin:0 0 8px; font-size:15px; font-weight:900; color:#1f2329; }
+.work-entry-button {
+  width:100%; border:0; border-radius:14px; padding:15px 18px; cursor:pointer;
+  background:#3370ff; color:#fff; font-size:16px; font-weight:900;
+  box-shadow:0 8px 18px rgba(51,112,255,.28); transition:.18s ease;
+}
+.work-entry-button:hover { transform:translateY(-2px); background:#245bdb; box-shadow:0 11px 24px rgba(51,112,255,.32); }
+.work-entry-help { margin:9px 2px 0; color:#646a73; font-size:12px; line-height:1.55; text-align:center; }
+body.work-mode .work-entry-panel { display:none; }
+
+/* ===== 飞书风格办公模式 ===== */
+.mode-switch {
+  position: fixed; right: 18px; top: 16px; z-index: 50;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 38px; padding: 0 13px;
+  border: 1px solid rgba(31,35,41,.14); border-radius: 8px;
+  background: rgba(255,255,255,.94); color: #1f2329;
+  box-shadow: 0 4px 14px rgba(31,35,41,.12); cursor: pointer;
+  font-size: 13px; font-weight: 600; backdrop-filter: blur(8px);
+}
+.work-header { display: none; }
+body.work-mode {
+  background: #f5f6f7;
+  color: #1f2329;
+}
+body.work-mode .mode-switch { top: 12px; right: 16px; border-color: #d0d3d6; box-shadow: none; z-index: 70; pointer-events:auto; }
+.mode-switch { pointer-events:auto; user-select:none; }
+.work-mode-exit {
+  display:none; margin-left:12px; min-height:32px; padding:0 11px;
+  border:1px solid #d0d3d6; border-radius:6px; background:#fff; color:#3370ff;
+  font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap;
+}
+body.work-mode .work-mode-exit { display:inline-flex; align-items:center; }
+.work-mode-exit:hover { background:#f0f4ff; }
+
+body.work-mode .work-header {
+  display: flex; position: fixed; inset: 0 0 auto 0; z-index: 40;
+  height: 56px; align-items: center; gap: 12px; padding: 0 16px 0 20px;
+  background: #fff; border-bottom: 1px solid #e5e6eb;
+}
+.work-doc-icon { width: 30px; height: 30px; display:grid; place-items:center; border-radius: 7px; background:#3370ff; color:#fff; font-size:16px; font-weight:700; }
+.work-breadcrumb { min-width:0; }
+.work-breadcrumb strong { display:block; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.work-breadcrumb span { display:block; margin-top:2px; color:#8f959e; font-size:12px; }
+.work-status { margin-left:auto; color:#8f959e; font-size:12px; white-space:nowrap; }
+body.work-mode .app-shell {
+  width: min(100%, 920px); align-items:flex-start; padding: 88px 24px 48px;
+}
+body.work-mode .screen { animation: none; }
+body.work-mode .hero-card,
+body.work-mode .scene-card,
+body.work-mode .result-card,
+body.work-mode .loading-card {
+  overflow: visible; border: 1px solid #e5e6eb; border-radius: 10px;
+  background:#fff; box-shadow: 0 1px 2px rgba(31,35,41,.04);
+}
+body.work-mode .hero-card { padding: 42px 48px 36px; }
+body.work-mode .hero-card::after,
+body.work-mode .result-card::after { display:none; }
+body.work-mode .brain { display:none; }
+body.work-mode h1 { font-size: 30px; line-height:1.3; letter-spacing:0; }
+body.work-mode .hero-subtitle { margin-top:12px; color:#646a73; font-size:15px; font-weight:400; }
+body.work-mode .hero-copy { color:#646a73; font-size:14px; line-height:1.75; }
+body.work-mode .brand-pill,
+body.work-mode .scene-pill,
+body.work-mode .result-code {
+  border:0; border-radius:6px; box-shadow:none; background:#f2f3f5; color:#646a73;
+  padding:6px 9px; font-size:12px; font-weight:500;
+}
+body.work-mode .fact-row { grid-template-columns:repeat(3,1fr); border:1px solid #e5e6eb; border-radius:8px; overflow:hidden; gap:0; }
+body.work-mode .fact { border:0; border-right:1px solid #e5e6eb; border-radius:0; padding:14px 10px; color:#646a73; font-weight:400; }
+body.work-mode .fact:last-child { border-right:0; }
+body.work-mode .primary-button,
+body.work-mode .secondary-button,
+body.work-mode .ghost-button {
+  min-height:40px; border:1px solid #3370ff; border-radius:6px; box-shadow:none;
+  font-weight:500; transition:background .15s ease; transform:none;
+}
+body.work-mode .primary-button { background:#3370ff; color:#fff; }
+body.work-mode .secondary-button { background:#fff; color:#3370ff; }
+body.work-mode .primary-button:hover { background:#245bdb; box-shadow:none; transform:none; }
+body.work-mode .secondary-button:hover { background:#f0f4ff; box-shadow:none; transform:none; }
+body.work-mode .tiny-note { color:#8f959e; font-size:12px; }
+body.work-mode .topbar { margin-bottom:12px; }
+body.work-mode .progress-meta { color:#646a73; font-weight:400; }
+body.work-mode .progress-track { height:6px; border:0; background:#e8eaf0; }
+body.work-mode .progress-fill { background:#3370ff; border:0; }
+body.work-mode .scene-card { padding:34px 42px 30px; }
+body.work-mode .scene-title { margin:18px 0 8px; font-size:24px; letter-spacing:0; }
+body.work-mode .scene-time { color:#8f959e; font-weight:400; }
+body.work-mode .chat-bubble {
+  margin:20px 0; padding:16px 18px; border:1px solid #dee0e3; border-radius:8px;
+  background:#f7f8fa; box-shadow:none; color:#1f2329; font-size:16px; font-weight:500;
+}
+body.work-mode .scene-prompt { margin:20px 0 12px; color:#1f2329; font-size:14px; font-weight:500; }
+body.work-mode .answers { gap:10px; }
+body.work-mode .answer-card {
+  display:flex; align-items:center; gap:12px; min-height:50px; padding:13px 15px;
+  border:1px solid #d9dce0; border-radius:7px; background:#fff; box-shadow:none;
+  color:#1f2329; font-size:14px; font-weight:400;
+}
+body.work-mode .answer-card::before {
+  content:""; width:16px; height:16px; flex:0 0 auto; border:1.5px solid #bbbfc4; border-radius:50%; background:#fff;
+}
+body.work-mode .answer-card:hover { transform:none; background:#f5f8ff; border-color:#82a7fc; }
+body.work-mode .answer-emoji, body.work-mode .answer-face, body.work-mode .meme-sticker, body.work-mode .doctor-note { display:none; }
+body.work-mode .bottom-actions { padding-top:14px; border-top:1px solid #f0f1f2; }
+body.work-mode .back-link { color:#3370ff; text-decoration:none; font-weight:400; }
+body.work-mode .loading-card { padding:54px 40px; }
+body.work-mode .loader-face { font-size:0; animation:none; }
+body.work-mode .loader-face::after { content:""; display:inline-block; width:34px; height:34px; border:3px solid #dbe4ff; border-top-color:#3370ff; border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+body.work-mode .loading-title { font-size:22px; font-weight:600; }
+body.work-mode .loading-line { color:#646a73; font-weight:400; }
+body.work-mode .fake-progress { height:6px; border:0; background:#e8eaf0; }
+body.work-mode .fake-progress span { background:#3370ff; }
+body.work-mode .result-card { padding:38px 44px 34px; }
+body.work-mode .result-kicker { color:#646a73; font-weight:400; }
+body.work-mode .result-title { font-size:28px; letter-spacing:0; }
+body.work-mode .result-slogan { color:#646a73; font-size:15px; font-weight:400; }
+body.work-mode .diagnosis-box, body.work-mode .symptoms, body.work-mode .warm-note {
+  border:1px solid #e5e6eb; border-radius:8px; background:#fff;
+}
+body.work-mode .diagnosis-box strong { color:#8f959e; font-weight:400; }
+body.work-mode .diagnosis-box span { font-size:15px; font-weight:500; }
+body.work-mode .warm-note { background:#f7f8fa; }
+body.work-mode .share-text { border:1px solid #e5e6eb; background:#f7f8fa; }
+body.work-mode .modal { background:rgba(31,35,41,.35); }
+body.work-mode .modal-card { border:1px solid #e5e6eb; border-radius:10px; box-shadow:0 8px 24px rgba(31,35,41,.18); background:#fff; }
+body.work-mode .qr-box { border:1px solid #e5e6eb; border-radius:8px; }
+.work-only { display:none; }
+body.work-mode .work-only { display:block; }
+body.work-mode .fun-only { display:none !important; }
+@media (max-width:640px){
+  body.work-mode .work-header { padding-left:12px; padding-right:128px; }
+  body.work-mode .work-status { display:none; }
+  body.work-mode .app-shell { padding:74px 12px 28px; }
+  body.work-mode .hero-card, body.work-mode .scene-card, body.work-mode .result-card { padding:26px 20px; }
+  body.work-mode .fact-row { grid-template-columns:1fr; }
+  body.work-mode .fact { border-right:0; border-bottom:1px solid #e5e6eb; }
+}
+
+
+/* ===== V1.5 稳定性与动效升级 ===== */
+.emoji-char, .brand-pill, .scene-pill, .answer-emoji, .answer-face, .fact, .result-title {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Microsoft YaHei", sans-serif;
+}
+.brain {
+  position: relative; width: 92px; height: 92px; margin: 20px 0 14px;
+  display: grid; place-items: center; filter: none; animation: brainFloat 2.8s ease-in-out infinite;
+}
+.brain-core {
+  width: 58px; height: 50px; border: 3px solid var(--line); border-radius: 47% 53% 45% 55%;
+  background: repeating-radial-gradient(circle at 30% 30%, #ff9fc2 0 5px, #ffbad1 6px 11px);
+  box-shadow: 4px 4px 0 var(--line); transform: rotate(-5deg);
+}
+.brain-core::before, .brain-core::after { content:""; position:absolute; background:var(--line); border-radius:999px; }
+.brain-core::before { width:3px; height:34px; left:44px; top:27px; transform:rotate(8deg); }
+.brain-core::after { width:18px; height:3px; left:37px; top:43px; transform:rotate(-14deg); }
+.orbit { position:absolute; inset:2px; border:2px dashed rgba(25,25,25,.58); border-radius:50%; animation:orbitSpin 5s linear infinite; }
+.orbit::after { content:""; position:absolute; width:10px; height:10px; border:2px solid var(--line); border-radius:50%; background:#fff; top:4px; left:13px; }
+.orbit-b { inset:10px -2px; transform:rotate(62deg); animation-direction:reverse; animation-duration:3.8s; }
+@keyframes orbitSpin { to { transform:rotate(360deg); } }
+@keyframes brainFloat { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-7px) rotate(3deg)} }
+
+.emoji-fallback { display:none; font-family:"Microsoft YaHei", sans-serif; font-size:14px; font-weight:900; }
+html.no-color-emoji .emoji-char { display:none; }
+html.no-color-emoji .emoji-fallback { display:inline; }
+html.no-color-emoji .brand-pill, html.no-color-emoji .scene-pill { font-family:"Microsoft YaHei", sans-serif; }
+
+.answer-card { animation:answerRise .34s cubic-bezier(.2,.75,.2,1) both; }
+.answer-card:nth-child(2){animation-delay:.045s}.answer-card:nth-child(3){animation-delay:.09s}.answer-card:nth-child(4){animation-delay:.135s}
+@keyframes answerRise { from{opacity:0;transform:translateY(13px) scale(.985)} to{opacity:1;transform:none} }
+
+.loader-face.fun-loader {
+  position:relative; width:94px; height:94px; margin:0 auto; font-size:0;
+  border:3px solid var(--line); border-radius:50%; background:#fff7c7; box-shadow:5px 5px 0 var(--line);
+  animation:loaderPulse 1.25s ease-in-out infinite;
+}
+.loader-face.fun-loader::before { content:"分析"; position:absolute; inset:0; display:grid; place-items:center; font-size:20px; font-weight:900; }
+.loader-face.fun-loader::after { content:""; position:absolute; inset:-12px; border:5px dotted var(--pink); border-radius:50%; animation:orbitSpin 2s linear infinite; }
+@keyframes loaderPulse { 50%{transform:scale(1.055)} }
+
+.result-card { animation:resultReveal .55s cubic-bezier(.18,.8,.2,1) both; }
+.result-card .diagnosis-box { animation:metricReveal .4s ease both; }
+.result-card .diagnosis-box:nth-child(2){animation-delay:.05s}.result-card .diagnosis-box:nth-child(3){animation-delay:.1s}.result-card .diagnosis-box:nth-child(4){animation-delay:.15s}.result-card .diagnosis-box:nth-child(5){animation-delay:.2s}.result-card .diagnosis-box:nth-child(6){animation-delay:.25s}
+@keyframes resultReveal { from{opacity:0;transform:translateY(18px) scale(.975)} to{opacity:1;transform:none} }
+@keyframes metricReveal { from{opacity:0;transform:rotate(-2deg) translateY(8px)} to{opacity:1;transform:none} }
+
+.mode-transition { position:fixed; inset:0; z-index:999; display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center; background:rgba(255,255,255,.94); color:#1f2329; font-size:13px; font-weight:700; opacity:0; visibility:hidden; transition:opacity .18s ease, visibility .18s ease; }
+.mode-transition.active { opacity:1; visibility:visible; }
+.transition-spinner { width:44px; height:44px; border:4px solid #dce6ff; border-top-color:#3370ff; border-radius:50%; animation:orbitSpin .7s linear infinite; }
+body:not(.work-mode) .mode-transition { background:rgba(255,231,121,.95); color:#191919; }
+
+.mode-switch::before { content:""; width:8px; height:8px; border-radius:50%; background:#3370ff; box-shadow:0 0 0 3px rgba(51,112,255,.14); }
+body.work-mode .mode-switch::before { background:#ff8a4c; box-shadow:0 0 0 3px rgba(255,138,76,.15); }
+
+@media (prefers-reduced-motion: reduce){ .brain,.orbit,.loader-face.fun-loader,.loader-face.fun-loader::after,.transition-spinner{animation:none!important} }
+
+</style>
+</head>
+<body>
+  <div id="modeTransition" class="mode-transition" aria-hidden="true"><div class="transition-spinner"></div><span>正在切换显示模式</span></div>
+  <header class="work-header"><div class="work-doc-icon">文</div><div class="work-breadcrumb"><strong>员工工作状态与协作体验调研</strong><span>公司空间 / 人力资源 / 组织发展</span></div><div class="work-status">自动保存</div><button id="workModeExit" class="work-mode-exit" type="button">返回娱乐版</button></header>
+  <button id="modeSwitch" class="mode-switch" type="button" aria-label="切换显示模式">办公模式</button>
+  <main id="app" class="app-shell" aria-live="polite"></main>
+
+  <div id="qrModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+    <div class="modal-card">
+      <button id="closeQr" class="icon-button" aria-label="关闭">×</button>
+      <p class="eyebrow">拉朋友一起暴露</p>
+      <h2 id="qrTitle">扫码测试</h2>
+      <div id="qrcode" class="qr-box"></div>
+      <p id="qrHint" class="modal-hint">二维码会自动使用当前网页地址。部署上线后，扫码即可直接进入。</p>
+      <button id="copyLink" class="secondary-button full">复制测试链接</button>
+    </div>
+  </div>
+
+  <script>
+const TYPES = {
+  E_PLAY: {
+    code: "001", name: "看起来很会玩I人的E人", alias: "I人捕获器", emoji: "🪩", danger: "★★★☆☆",
+    slogan: "哪里有I人，哪里就有你。",
+    symptoms: ["看到角落里的安静人类，会自动靠近", "聚会还没散，你已经在摇下一桌", "把朋友的朋友发展成自己的朋友"],
+    advice: "热情是你的超能力。只是偶尔记得：有些I人不是害羞，他们是真的想回家。",
+    share: "检测结果：看起来很会玩I人的E人。放过那个缩在角落里的I人，他真的只是出来拿个外卖。"
+  },
+  EMPATH: {
+    code: "002", name: "心思细腻小女孩", alias: "共情雷达", emoji: "🫧", danger: "★★☆☆☆",
+    slogan: "别人只听见一句话，你已经听见了语气、停顿和没说出口的部分。",
+    symptoms: ["朋友说没事，你知道他有事", "记得别人随口提过的小喜好", "聚会里会默默照顾没融进去的人"],
+    advice: "温柔很好，但不是无限供应的公共资源。照顾大家之前，也请把自己算进去。",
+    share: "检测结果：心思细腻小女孩。别人说没事，我知道他有事；我说没事的时候，希望你也看得出来。"
+  },
+  SENSITIVE: {
+    code: "003", name: "你怎么这么敏感？", alias: "情绪放大器", emoji: "🥲", danger: "★★★★☆",
+    slogan: "别人随口一说，你的大脑已经保存、放大并循环播放。",
+    symptoms: ["一个句号能研究半天", "别人语气轻微变化，你立刻收到信号", "善意和冷淡都会被你放大接收"],
+    advice: "你的感受是真的，但你的猜测不一定都是真的。先确认，再决定要不要把自己判刑。",
+    share: "检测结果：你怎么这么敏感？没有，我不敏感。我只是把你三天前说话的语气记得比较清楚。"
+  },
+  LOW_BATTERY: {
+    code: "004", name: "出门一趟躺一星期的I人", alias: "低电量模式", emoji: "🪫", danger: "★★☆☆☆",
+    slogan: "今天出门三小时，接下来五天请勿联系。",
+    symptoms: ["聚会时看起来正常，回家后直接关机", "临时邀约会先让灵魂叹气", "消息不是不回，是正在组织电量"],
+    advice: "你不是不合群，只是充电方式比较安静。拒绝邀约不用编故事，想休息就是合理理由。",
+    share: "检测结果：出门一趟躺一星期的I人。周六出去玩，周日到周五负责恢复出厂设置。"
+  },
+  OVERTHINK: {
+    code: "005", name: "别想这么多了我求你了", alias: "脑内编剧", emoji: "🧠", danger: "★★★★★",
+    slogan: "事情只有一步，你的大脑已经推演到了第三季大结局。",
+    symptoms: ["发完消息后重新阅读三遍", "别人回“好的”，你开始检查人生", "晚上十一点以后，大脑拒绝下班"],
+    advice: "你考虑得很全面，只是经常把提前准备变成提前受苦。有些问题，明天再想也不会收利息。",
+    share: "检测结果：别想这么多了我求你了。我也不想想，但我的大脑不同意下班。"
+  },
+  DIRECT: {
+    code: "006", name: "多考虑一些再说话吧", alias: "直球发射器", emoji: "📢", danger: "★★★☆☆",
+    slogan: "嘴已经提交，大脑还在加载审核页面。",
+    symptoms: ["把大家不敢说的话一口气说完", "说完才发现气氛有点安静", "认为沟通最大的美德是别绕弯"],
+    advice: "你的真诚很珍贵。重要的话出口前，给大脑三秒加载时间，可能拯救一整桌人的气氛。",
+    share: "检测结果：多考虑一些再说话吧。我没有说错，我只是说得太早、太快、太完整。"
+  },
+  PLANNER: {
+    code: "007", name: "不乐意被打破计划的J人", alias: "计划守护者", emoji: "📅", danger: "★★★☆☆",
+    slogan: "计划可以改，但请提前通知我的情绪。",
+    symptoms: ["出门前路线已经看过三遍", "听见“临时”两个字，心里自动蓝屏", "旅行攻略连备用方案都有备用方案"],
+    advice: "计划是为了帮助生活，不是让生活向计划道歉。偶尔偏离路线，也不代表世界失去秩序。",
+    share: "检测结果：不乐意被打破计划的J人。我不是不能改计划，我只是希望提前三个工作日通知我。"
+  },
+  BALANCED: {
+    code: "008", name: "我靠，你咋这么完美", alias: "六边形青年", emoji: "✨", danger: "★☆☆☆☆",
+    slogan: "你不是没有缺点，只是目前藏得比较专业。",
+    symptoms: ["能社交，也能自己待着", "会做计划，但不会为了变化当场裂开", "能照顾别人，也知道保护自己的边界"],
+    advice: "大家很容易默认你什么都能处理。你可以可靠，但不用对所有人负责。偶尔不完美，也没关系。",
+    share: "检测结果：我靠，你咋这么完美。请不要误会，我只是情绪稳定得比较会伪装。"
+  }
+};
+
+const scenes = [
+  { title:"突然收到消息", icon:"📱", time:"18:37 · 微信震了一下", bubble:"阿豪：今晚出来。", prompt:"你的真实反应是——", options:[
+    ["🕺","来。地址发我，我已经开始穿鞋了。",{E_PLAY:3}],
+    ["🛏️","今晚啊……让我和床商量一下。",{LOW_BATTERY:3}],
+    ["📅","可以，但九点我要回家。我的电量有明确下班时间。",{PLANNER:2,LOW_BATTERY:1}],
+    ["🫠","不去是不是不好？去了是不是好累？……已经开始内耗。",{OVERTHINK:3}]
+  ]},
+  { title:"老板说", icon:"💼", time:"10:18 · 工作日限定恐怖片", bubble:"老板：方便聊一下吗？", prompt:"看到这句话，你会——", options:[
+    ["📢","方便。有什么事直接说吧。",{DIRECT:3}],
+    ["🧠","我最近干什么了？我是不是要失业了？",{OVERTHINK:3}],
+    ["🫧","先问同事：老板今天是不是心情不太对？",{EMPATH:3}],
+    ["🙂","回复“好的”，然后正常去聊。兵来将挡。",{BALANCED:3}]
+  ]},
+  { title:"凌晨一点的大脑", icon:"🌙", time:"01:06 · 本来准备睡觉", bubble:"大脑：还记得两年前那个尴尬瞬间吗？", prompt:"你会怎么处理这位不请自来的编剧？", options:[
+    ["🧠","等等，我完整复盘一下。",{OVERTHINK:3}],
+    ["🥲","完了，当时别人是不是觉得我很奇怪？",{SENSITIVE:3}],
+    ["📢","滚。我要睡觉。",{DIRECT:3}],
+    ["📱","打开短视频，假装刚才什么都没发生。",{BALANCED:2,LOW_BATTERY:1}]
+  ]},
+  { title:"群聊99+", icon:"💬", time:"20:42 · 你点进了一个危险群聊", bubble:"群公告：有没有人愿意当主持人？", prompt:"你的手指会停在哪里？", options:[
+    ["🪩","我来！顺便把流程也热起来。",{E_PLAY:3}],
+    ["🫥","假装没看见。手机刚才可能没信号。",{LOW_BATTERY:3}],
+    ["🫧","先看看有没有人被晾着，再适当接一句。",{EMPATH:3}],
+    ["📅","主持可以，但先把流程、时间和名单发我。",{PLANNER:3}]
+  ]},
+  { title:"今晚吃什么", icon:"🍜", time:"19:12 · 肚子已经报警", bubble:"外卖软件：附近有 268 家店。", prompt:"你的下单路径通常是——", options:[
+    ["📢","五分钟，下单，结束。踩雷了下次再说。",{DIRECT:3}],
+    ["🧠","翻二十分钟，比价格、评价、距离，最后还是黄焖鸡。",{OVERTHINK:3}],
+    ["📅","收藏夹里有固定名单，今天吃什么昨天就想好了。",{PLANNER:3}],
+    ["🫠","谁发链接我吃谁，别让我做决定。",{LOW_BATTERY:2,EMPATH:1}]
+  ]},
+  { title:"朋友说：没事", icon:"🙂", time:"22:03 · 这两个字看起来并不简单", bubble:"朋友：没事。", prompt:"你读出了什么？", options:[
+    ["📢","他说没事，那大概率就是没事。",{DIRECT:3}],
+    ["🥲","不对，标点、语气和速度都不对。",{SENSITIVE:3}],
+    ["🫧","我会轻轻问一句，但不逼他马上说。",{EMPATH:3}],
+    ["🧠","开始回忆自己过去三天有没有说错什么。",{OVERTHINK:3}]
+  ]},
+  { title:"发完重要消息", icon:"📨", time:"14:26 · 消息已发送", bubble:"你：好的，那就这样定了。", prompt:"接下来的你——", options:[
+    ["📢","发完就算，该干嘛干嘛。",{DIRECT:3}],
+    ["🧠","重新读三遍，检查语气是不是太冷。",{OVERTHINK:3}],
+    ["🥲","想撤回，又怕撤回更奇怪。",{SENSITIVE:2,OVERTHINK:2}],
+    ["✨","觉得不清楚就补一句，然后放下手机。",{BALANCED:3}]
+  ]},
+  { title:"临时改计划", icon:"🔄", time:"16:50 · 你已经把路线看好了", bubble:"朋友：我们临时换个地方吧。", prompt:"你的内心弹幕是——", options:[
+    ["📅","表面没事，内心日程表已经碎了一地。",{PLANNER:3}],
+    ["🪩","换就换，出来玩最重要。",{E_PLAY:3}],
+    ["✨","有点不舒服，但合理的话可以调整。",{BALANCED:3}],
+    ["🧠","立刻重新规划，防止新的安排继续失控。",{PLANNER:2,OVERTHINK:1}]
+  ]},
+  { title:"第一次见陌生人", icon:"👋", time:"19:30 · 空气里有一点礼貌的尴尬", bubble:"朋友：这是我同事，你们认识一下。", prompt:"你一般会——", options:[
+    ["🪩","主动开聊，十分钟后已经开始互相开玩笑。",{E_PLAY:3}],
+    ["🪫","等别人先开口，熟了以后其实很能聊。",{LOW_BATTERY:3}],
+    ["🫧","注意谁最尴尬，主动递个容易接的话题。",{EMPATH:3}],
+    ["✨","正常交流，不硬热场，也不刻意躲开。",{BALANCED:3}]
+  ]},
+  { title:"聚会散场之后", icon:"🎉", time:"23:48 · 大家开始说“下次再约”", bubble:"朋友：要不要再去下一场？", prompt:"最像你的回答是——", options:[
+    ["🪩","散场？谁说结束了？下一桌在哪？",{E_PLAY:3}],
+    ["🪫","今晚真的很开心。未来72小时请勿联系。",{LOW_BATTERY:3}],
+    ["🧠","先不去了，我要回家复盘今天有没有说错话。",{OVERTHINK:3}],
+    ["✨","今天差不多了，回家睡觉，明天继续做人。",{BALANCED:3}]
+  ]},
+  { title:"一句评价", icon:"🗣️", time:"15:11 · 对方可能只是随口一说", bubble:"同事：你今天是不是有点安静？", prompt:"这句话会在你脑中停留多久？", options:[
+    ["📢","哦，今天有点累。说完就过去了。",{DIRECT:3}],
+    ["🥲","他是不是觉得我不合群？",{SENSITIVE:3}],
+    ["🧠","开始分析今天每一次发言和沉默。",{OVERTHINK:3}],
+    ["✨","听见了，但不会自动往坏处解释。",{BALANCED:3}]
+  ]},
+  { title:"发生冲突", icon:"💥", time:"21:15 · 气氛突然变硬", bubble:"朋友做了一件让你不舒服的事。", prompt:"你更可能——", options:[
+    ["📢","当场说清楚，别让问题发酵。",{DIRECT:3}],
+    ["🥲","先想是不是自己太敏感了。",{SENSITIVE:3}],
+    ["🫧","挑合适的方式表达，尽量不给对方难堪。",{EMPATH:3}],
+    ["🧠","当场忍住，晚上回家开完整复盘会。",{OVERTHINK:3}]
+  ]},
+  { title:"周末安排", icon:"🛋️", time:"周六 09:20 · 世界正在呼唤你", bubble:"群聊：今天有人出来玩吗？", prompt:"你最真实的状态是——", options:[
+    ["🪩","有！几点？去哪？还有谁？",{E_PLAY:3}],
+    ["🪫","周末至少有一天，谁也别安排我。",{LOW_BATTERY:3}],
+    ["📅","可以，但最好昨天就告诉我。",{PLANNER:3}],
+    ["✨","看电量，想去就去，累了就休息。",{BALANCED:3}]
+  ]},
+  { title:"旅行之前", icon:"🧳", time:"出发前 5 天 · 有人已经打开表格", bubble:"朋友：攻略到时候再说吧。", prompt:"你的反应是——", options:[
+    ["📅","不行。路线、酒店、餐厅和备用方案都要有。",{PLANNER:3}],
+    ["🪩","到了再说，迷路也是旅行的一部分。",{E_PLAY:3}],
+    ["🪫","你们决定，我负责按时出现。",{LOW_BATTERY:2,EMPATH:1}],
+    ["✨","关键安排先定好，其他留点空间。",{BALANCED:3}]
+  ]},
+  { title:"任务还有一周", icon:"⏳", time:"距离截止：7天", bubble:"待办事项：完成一份重要任务。", prompt:"你的进度一般是——", options:[
+    ["📅","已经拆成步骤，最好提前交。",{PLANNER:3}],
+    ["🧠","研究要求、预判风险，但迟迟没真正开始。",{OVERTHINK:3}],
+    ["📢","等压力到位，最后一口气干完。",{DIRECT:2,E_PLAY:1}],
+    ["✨","做个简单计划，按进度推进，变化再调整。",{BALANCED:3}]
+  ]},
+  { title:"朋友突然崩溃", icon:"🫂", time:"23:09 · 对方发来一长串消息", bubble:"朋友：我真的不知道该怎么办了。", prompt:"你通常会——", options:[
+    ["🫧","认真听，先弄清他此刻最需要什么。",{EMPATH:3}],
+    ["🥲","跟着一起难受，甚至比他更久走不出来。",{SENSITIVE:3}],
+    ["📢","直接分析问题，告诉他下一步怎么做。",{DIRECT:3}],
+    ["✨","先安慰，再一起想办法，也照顾好自己的边界。",{BALANCED:3}]
+  ]}
+];
+
+const doctorNotes = {
+  2:"陈医生：老板只发了七个字，你已经在脑内完成了一次离职交接。",
+  5:"陈医生：前面嘴还挺硬，现在开始暴露真实状态了。",
+  8:"陈医生：放心，我们不会告诉你的朋友。除非他也来测。",
+  12:"陈医生：到这里还能坚持装正常的人，已经不多了。",
+  15:"陈医生：最后一幕。请放弃挣扎，诚实作答。"
+};
+
+const app = document.getElementById("app");
+let current = 0;
+let answers = [];
+let scores = createEmptyScores();
+let workMode = localStorage.getItem("displayMode") === "work";
+
+const workQuestions = [
+  ["下班后收到临时社交邀约时，你通常会如何安排？",["立即确认并参与","优先休息，视精力决定","确认结束时间后参与","需要权衡较长时间才能决定"]],
+  ["收到上级临时沟通邀请时，你的第一反应通常是？",["直接确认并进入沟通","先回顾近期工作是否存在问题","先了解对方当前状态与背景","保持平常心，按流程沟通"]],
+  ["休息时间出现对过往事件的反复回想时，你通常会？",["继续完整复盘","担心他人对自己的评价","主动中止思考并休息","通过其他内容转移注意力"]],
+  ["群聊中出现需要主动承担的公共任务时，你通常会？",["主动承担并推动流程","保持观察，尽量不主动出现","关注是否有人需要协助","先确认时间、职责与名单"]],
+  ["面对较多可选方案时，你通常如何决策？",["快速选择并执行","进行多维度比较后再决定","使用固定清单或历史方案","倾向由他人直接推荐"]],
+  ["同事或朋友表示“没事”时，你通常如何判断？",["按字面信息理解","关注语气与表达细节","适度询问但不过度追问","优先反思是否与自己有关"]],
+  ["发送重要工作消息后，你通常会？",["发送后继续处理其他事项","重复检查语气与措辞","考虑撤回或重新编辑","必要时补充说明后结束关注"]],
+  ["既定安排临时发生变化时，你通常会？",["情绪受到明显影响","能够较快适应变化","根据合理性调整安排","立即重新规划以控制风险"]],
+  ["首次与陌生同事或合作方见面时，你通常会？",["主动发起交流","等待对方先开口","关注现场氛围并帮助他人融入","自然交流，不刻意活跃或回避"]],
+  ["团队活动结束后又出现后续安排时，你通常会？",["愿意继续参与","倾向尽快返回并独处恢复","回顾自己在活动中的表现","根据时间与精力理性结束"]],
+  ["同事对你的状态做出一句简单评价时，你通常会？",["简单回应并结束关注","担心对方有负面判断","反复回顾当天的表现","接受信息但不做负面推断"]],
+  ["与同事或朋友出现意见冲突时，你通常会？",["及时直接沟通","先怀疑是否是自己反应过度","选择合适方式表达并照顾对方感受","暂时不说，之后反复复盘"]],
+  ["面对周末团队或朋友邀约时，你通常会？",["积极参与","至少保留一天独处时间","更希望提前收到安排","根据当下精力灵活决定"]],
+  ["进行团队旅行或外出活动前，你通常会？",["提前完成详细计划","到现场再灵活处理","由其他成员决定主要安排","提前确定关键事项并保留弹性"]],
+  ["距离重要任务截止还有一周时，你通常处于什么状态？",["已拆解任务并按计划推进","持续研究要求但尚未正式开始","临近截止时集中完成","制定简要计划并持续调整"]],
+  ["同事或朋友突然出现明显情绪压力时，你通常会？",["认真倾听并识别需求","容易受到对方情绪持续影响","直接分析问题并给出方案","先安慰，再协助解决并保持边界"]]
+];
+
+function supportsColorEmoji(){
+  try{
+    const c=document.createElement("canvas"); c.width=c.height=32;
+    const x=c.getContext("2d",{willReadFrequently:true});
+    x.font='24px "Segoe UI Emoji", "Apple Color Emoji", sans-serif'; x.fillText("🧠",2,25);
+    const d=x.getImageData(0,0,32,32).data;
+    let colorful=false;
+    for(let i=0;i<d.length;i+=4){ if(d[i+3] && !(d[i]===d[i+1] && d[i+1]===d[i+2])){ colorful=true; break; } }
+    return colorful;
+  }catch(e){ return true; }
+}
+document.documentElement.classList.toggle("no-color-emoji", !supportsColorEmoji());
+
+function animateModeTransition(callback){
+  const layer=document.getElementById("modeTransition");
+  if(!layer || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ callback(); return; }
+  layer.classList.add("active");
+  window.setTimeout(()=>{ callback(); window.setTimeout(()=>layer.classList.remove("active"),150); },180);
+}
+
+function setWorkMode(on, animate=false){
+  if(animate){ animateModeTransition(()=>setWorkMode(on,false)); return; }
+  const next = Boolean(on);
+  workMode = next;
+  document.body.classList.toggle("work-mode", next);
+  try { localStorage.setItem("displayMode", next ? "work" : "fun"); } catch(e) {}
+  document.title = next ? "员工工作状态与协作体验调研" : "当代年轻人精神状态检测";
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.content = next ? "#ffffff" : "#ffdd57";
+  const btn = document.getElementById("modeSwitch");
+  if(btn){
+    btn.textContent = next ? "返回娱乐版" : "切换办公模式";
+    btn.setAttribute("aria-pressed", next ? "true" : "false");
+    btn.title = next ? "切换回娱乐版（Alt+Q）" : "切换到办公模式（Alt+Q）";
+  }
+  const exitBtn = document.getElementById("workModeExit");
+  if(exitBtn) exitBtn.hidden = !next;
+  if(current===0 && answers.length===0) renderHome();
+  else if(current<scenes.length) renderScene();
+  else renderResult();
+}
+
+function createEmptyScores(){ return Object.fromEntries(Object.keys(TYPES).map(k => [k,0])); }
+function escapeHtml(str){ return String(str).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+
+function faceForOption(scoreMap, index){
+  const key=Object.entries(scoreMap).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const faces={
+    E_PLAY:"😆", EMPATH:"🥹", SENSITIVE:"🥲", LOW_BATTERY:"😮‍💨",
+    OVERTHINK:"🤯", DIRECT:"😐", PLANNER:"🤓", BALANCED:"😌"
+  };
+  return faces[key] || ["🙂","🙃","🫠","🤡"][index%4];
+}
+
+function memeForScene(index){
+  const memes={
+    1:"本人：可以。内心：已经开始写拒绝理由。",
+    2:"老板七个字，你脑补七十集。",
+    3:"凌晨的大脑：今日加班，现在开始。",
+    4:"群聊里的沉默，也是一种团队合作。",
+    8:"计划没变，情绪先开会。",
+    12:"周末不是休息，是恢复出厂设置。",
+    16:"恭喜，你已成功暴露。"
+  };
+  return memes[index+1] || "";
+}
+
+function renderHome(){
+  if(workMode){
+    app.innerHTML = `
+      <section class="screen">
+        <div class="hero-card">
+          <span class="brand-pill">匿名内部调研 · HR-OPS-2026-Q3</span>
+          <h1>员工工作状态与协作体验调研</h1>
+          <p class="hero-subtitle">用于了解员工在沟通、协作、计划管理与工作恢复方面的真实体验。</p>
+          <p class="hero-copy">本问卷共 16 题，预计用时约 2 分钟。问卷采用匿名方式收集，结果仅用于汇总分析，不记录姓名、工号或部门信息。请选择最符合你近期真实状态的选项。</p>
+          <div class="fact-row">
+            <div class="fact">16 个单选题</div><div class="fact">预计 2 分钟</div><div class="fact">匿名填写</div>
+          </div>
+          <button id="startBtn" class="primary-button full">开始填写</button>
+          <p class="tiny-note">提交前可返回修改，填写进度将在当前页面自动保留。</p>
+        </div>
+      </section>`;
+  }else{
+    app.innerHTML = `
+      <section class="screen">
+        <div class="hero-card">
+          <span class="brand-pill">🧠 互联网精神状态检测中心</span>
+          <div class="brain" role="img" aria-label="精神状态检测图标"><span class="brain-core"></span><span class="orbit orbit-a"></span><span class="orbit orbit-b"></span></div>
+          <h1>当代年轻人<br>精神状态检测</h1>
+          <p class="hero-subtitle">你的精神状态，互联网都知道。</p>
+          <p class="hero-copy">16个生活现场，约2分钟。没有标准答案，也没有真正正常的人。请凭第一反应作答——想太久也会被系统记录。</p>
+          <div class="fact-row"><div class="fact">🎭 16幕短剧</div><div class="fact">🫠 8种状态</div><div class="fact">📸 适合截图</div></div>
+          <button id="startBtn" class="primary-button full">开始接受检测</button>
+          <div class="work-entry-panel">
+            <p class="work-entry-label">办公场景保护</p>
+            <button id="workEntryBtn" class="work-entry-button" type="button">开启办公保护模式</button>
+            <p class="work-entry-help">一键切换为企业内部问卷界面 · Esc / Alt+Q 快速切换</p>
+          </div>
+          <p class="tiny-note">建议独自完成，避免朋友在旁边直接替你确诊。</p>
+        </div>
+      </section>`;
+  }
+  document.getElementById("startBtn").onclick = startTest;
+  const workEntryBtn = document.getElementById("workEntryBtn");
+  if(workEntryBtn) workEntryBtn.onclick = () => setWorkMode(true, true);
+}
+
+function startTest(){ current=0; answers=[]; scores=createEmptyScores(); renderScene(); }
+
+function renderScene(){
+  const s=scenes[current];
+  const progress=Math.round((current/scenes.length)*100);
+  const w=workQuestions[current];
+  app.innerHTML = `
+    <section class="screen">
+      <div class="topbar"><div class="progress-wrap">
+        <div class="progress-meta"><span>${workMode?"填写进度":"精神状态检测中"}</span><span>${current+1} / ${scenes.length}</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
+      </div></div>
+      <article class="scene-card">
+        <span class="scene-pill">${workMode?"单选题":"${s.icon} 第${current+1}幕"}</span>
+        <h2 class="scene-title">${workMode?`${current+1}. ${w[0]}`:`《${s.title}》`}</h2>
+        <div class="scene-time">${workMode?"请选择一个最符合实际情况的选项":s.time}</div>
+        ${workMode?"":`<div class="chat-bubble">${escapeHtml(s.bubble)}</div><p class="scene-prompt">${s.prompt}</p>`}
+        <div class="answers">
+          ${s.options.map((o,i)=>`<button class="answer-card" data-index="${i}"><span class="answer-emoji"><span class="emoji-char" aria-hidden="true">${o[0]}</span><span class="emoji-fallback" aria-hidden="true">选</span></span><span class="answer-copy">${escapeHtml(workMode?w[1][i]:o[1])}</span><span class="answer-face" aria-hidden="true">${faceForOption(o[2],i)}</span></button>`).join("")}
+        </div>
+        ${!workMode&&doctorNotes[current+1] ? `<div class="doctor-note">👨‍⚕️ ${doctorNotes[current+1].replace("陈医生：","")}</div>`:""}
+        ${!workMode&&memeForScene(current) ? `<div class="meme-sticker">📌 ${memeForScene(current)}</div>` : ""}
+        <div class="bottom-actions">
+          ${current>0?`<button id="backBtn" class="back-link">${workMode?"← 返回上一题":"← 上一幕，我刚才嘴硬了"}</button>`:'<span></span>'}
+          <span class="tiny-note">${workMode?"答案将在本地自动保存":"别选最正常的，正常人不会来测。"}</span>
+        </div>
+      </article>
+    </section>`;
+  document.querySelectorAll(".answer-card").forEach(btn=>btn.onclick=()=>choose(Number(btn.dataset.index)));
+  if(current>0) document.getElementById("backBtn").onclick=goBack;
+}
+
+function apply(scoreMap, direction=1){ Object.entries(scoreMap).forEach(([k,v])=>scores[k]+=v*direction); }
+function choose(optionIndex){
+  const picked=scenes[current].options[optionIndex];
+  answers[current]=optionIndex; apply(picked[2],1); current++;
+  if(current>=scenes.length) renderLoading(); else renderScene();
+}
+function goBack(){
+  if(current===0)return;
+  current--;
+  const old=answers[current];
+  if(old!==undefined){ apply(scenes[current].options[old][2],-1); answers[current]=undefined; }
+  renderScene();
+}
+
+function getResult(){
+  const entries=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const highest=entries[0][1], lowest=entries[entries.length-1][1];
+  const balancedRank=entries.findIndex(x=>x[0]==="BALANCED")+1;
+  const balancedChoices=answers.reduce((n,choice,i)=>n+(scenes[i].options[choice]?.[2]?.BALANCED?1:0),0);
+  const highestOther=Math.max(...Object.entries(scores).filter(([k])=>k!=="BALANCED").map(([,v])=>v));
+  if(scores.BALANCED>=highestOther+2 || (highest-lowest<=5 && balancedRank<=3) || (highestOther<16 && balancedChoices>=5)) return "BALANCED";
+  return entries[0][0];
+}
+
+function renderLoading(){
+  app.innerHTML=`<section class="screen"><div class="loading-card"><div class="loader-face ${workMode?"":"fun-loader"}" aria-hidden="true"></div><h2 class="loading-title">${workMode?"正在提交问卷":"陈医生正在分析"}</h2><p id="loadingLine" class="loading-line">${workMode?"正在保存本次填写结果……":"正在提交你的精神状态……"}</p><div class="fake-progress"><span id="loadingBar"></span></div><p class="tiny-note">${workMode?"请勿关闭当前页面":"没有真的读取聊天记录。至少今天没有。"}</p></div></section>`;
+  const lines=workMode?["正在校验填写完整性……","正在保存匿名记录……","正在生成个人反馈摘要……","正在完成数据提交……","提交成功。正在打开反馈页面……"]:["正在检查社交共享能力……","正在统计脑内小剧场……","正在测量社交电量……","正在分析计划被打乱时的反应……","系统内存差点不够用……","检测完成。你果然是——"];
+  let i=0;
+  const timer=setInterval(()=>{
+    const line=document.getElementById("loadingLine"), bar=document.getElementById("loadingBar");
+    if(!line||!bar){clearInterval(timer);return;}
+    line.textContent=lines[i]; bar.style.width=`${20+(i+1)*13}%`; i++;
+    if(i>=lines.length){clearInterval(timer);setTimeout(renderResult,650);}
+  },650);
+}
+
+function renderResult(){
+  const key=getResult(), t=TYPES[key];
+  const social=Math.min(100,Math.round(scores.E_PLAY/18*100));
+  const inner=Math.min(100,Math.round((scores.OVERTHINK+scores.SENSITIVE)/30*100));
+  const plan=Math.min(100,Math.round(scores.PLANNER/18*100));
+  const radar=Math.min(100,Math.round((scores.EMPATH+scores.SENSITIVE)/30*100));
+  app.innerHTML=`
+  <section class="screen">
+    <article class="result-card">
+      <span class="result-code">${workMode?"提交成功 · 记录编号 "+t.code:"检测编号 "+t.code}</span>
+      <p class="result-kicker">${workMode?"个人工作状态反馈摘要":"互联网精神状态检测报告"}</p>
+      <h1 class="result-title">${workMode?t.alias:(t.emoji+" "+t.name)}</h1>
+      <p class="result-slogan">${workMode?"以下内容根据本次选择自动生成，仅供个人参考。":t.slogan}</p>
+      <div class="diagnosis-grid">
+        <div class="diagnosis-box"><strong>内部代号</strong><span>${t.alias}</span></div>
+        <div class="diagnosis-box"><strong>${workMode?"当前状态":"危险指数"}</strong><span>${workMode?"总体稳定":t.danger}</span></div>
+        <div class="diagnosis-box"><strong>社交共享</strong><span>${social}%</span></div>
+        <div class="diagnosis-box"><strong>脑内小剧场</strong><span>${inner}%</span></div>
+        <div class="diagnosis-box"><strong>计划依赖</strong><span>${plan}%</span></div>
+        <div class="diagnosis-box"><strong>情绪雷达</strong><span>${radar}%</span></div>
+      </div>
+      <section class="symptoms"><h3>${workMode?"近期行为特征":"近期高发行为"}</h3><ul>${t.symptoms.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+      <section class="warm-note"><h3>${workMode?"个人建议":"陈医生的最后一句"}</h3>${t.advice}${workMode?"":"<br><br><strong>被说中可以笑。这样的你，也挺好的。</strong>"}</section>
+      ${workMode?"":`<div class="share-text">${t.share}</div>`}
+      <div class="result-actions">
+        <button id="restartBtn" class="primary-button">${workMode?"重新填写":"重新检测一次"}</button>
+        <button id="shareBtn" class="secondary-button">${workMode?"复制反馈摘要":"分享结果文案"}</button>
+        <button id="qrBtn" class="secondary-button">${workMode?"查看问卷入口":"生成扫码入口"}</button>
+      </div>
+      <p class="tiny-note">${workMode?"本页面为演示性质的匿名自评工具，未连接企业后台。":"娱乐测试，不是医学诊断。V1.5 已启用表情兼容与动效优化。"}</p>
+    </article>
+  </section>`;
+  document.getElementById("restartBtn").onclick=startTest;
+  document.getElementById("shareBtn").onclick=()=>shareResult(t);
+  document.getElementById("qrBtn").onclick=openQr;
+}
+
+async function shareResult(t){
+  const text=`${t.share}\n\n来测测你的精神状态：${location.href}`;
+  try{
+    if(navigator.share){ await navigator.share({title:"当代年轻人精神状态检测",text,url:location.href}); }
+    else { await navigator.clipboard.writeText(text); showToast("结果文案已复制"); }
+  }catch(e){ if(e.name!=="AbortError") fallbackCopy(text); }
+}
+function fallbackCopy(text){ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); showToast("结果文案已复制"); }
+function showToast(msg){ const el=document.createElement("div"); el.className="toast"; el.textContent=msg; document.body.appendChild(el); setTimeout(()=>el.remove(),1800); }
+
+const modal=document.getElementById("qrModal");
+function openQr(){
+  modal.classList.remove("hidden");
+  const box=document.getElementById("qrcode"); box.innerHTML="";
+  if(window.QRCode){ new QRCode(box,{text:location.href,width:210,height:210,colorDark:"#191919",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H}); }
+  else { const img=document.createElement("img"); img.alt="测试入口二维码"; img.width=210; img.height=210; img.src="https://api.qrserver.com/v1/create-qr-code/?size=210x210&data="+encodeURIComponent(location.href); box.appendChild(img); }
+}
+document.getElementById("closeQr").onclick=()=>modal.classList.add("hidden");
+modal.onclick=e=>{if(e.target===modal)modal.classList.add("hidden")};
+document.getElementById("copyLink").onclick=async()=>{try{await navigator.clipboard.writeText(location.href);showToast("测试链接已复制")}catch{fallbackCopy(location.href)}};
+
+const modeSwitchBtn = document.getElementById("modeSwitch");
+const workModeExitBtn = document.getElementById("workModeExit");
+modeSwitchBtn.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  setWorkMode(!document.body.classList.contains("work-mode"), true);
+});
+workModeExitBtn.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  setWorkMode(false, true);
+});
+document.addEventListener("keydown", e=>{
+  if(e.altKey && e.key.toLowerCase()==="q"){
+    e.preventDefault();
+    setWorkMode(!document.body.classList.contains("work-mode"), true);
+  } else if(e.key==="Escape"){
+    setWorkMode(true, true);
+  }
+});
+setWorkMode(workMode);
+
+</script>
+</body>
+</html>
