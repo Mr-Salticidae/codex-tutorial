@@ -11,7 +11,8 @@
 | 封面 | `toy封面_1200x900.png`（1200×900，4:3，真实成品帧） |
 | 手机端 | 已适配（viewport 齐备，`<520/640/980px` 响应式断点） |
 | 内容预检 | toy_doctor 通过：`{ "ok": true, "findings": [] }` |
-| Toy 项目 id | **待发布后回填** ← 更新全靠它，首发成功后立刻记这里 |
+| Toy 项目 id | `13050178493440`（2026-07-21 首发过审，PUBLIC） |
+| 线上地址 | https://www.bilibili.com/toy/zhu-yuanzhang-kline/index.html |
 
 ## 发布步骤（需交互，作者本人完成）
 
