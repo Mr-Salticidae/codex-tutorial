@@ -1614,13 +1614,7 @@
     renderTimeline();
     applySettings({ ...defaultSettings });
     setActive(0, { redraw: false, announce: false, reveal: false });
-    if (reducedMotion) {
-      playbackTime = OPENING_DURATION;
-      opening.classList.add('is-hidden');
-      hasStarted = true;
-    } else {
-      narrativeKey = 'opening';
-    }
+    narrativeKey = 'opening';
     updatePlayIcon();
     resize();
     if (playing) scheduleFrame();
