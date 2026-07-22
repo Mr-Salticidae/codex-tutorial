@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="base.css" />
+<style>
+  .rows { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 1880px; }
+  .row {
+    display: grid;
+    grid-template-columns: 300px 92px 1fr;
+    align-items: center;
+    gap: 34px;
+    background: linear-gradient(160deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+    border: 1px solid rgba(255,255,255,.085);
+    border-radius: 22px;
+    padding: 30px 44px;
+  }
+  .term { font-size: 44px; font-weight: 700; color: #E8C88A; letter-spacing: .06em; }
+  .arrow { font-size: 40px; color: #6E7482; text-align: center; }
+  .mean { font-size: 40px; color: #E9ECF2; letter-spacing: .03em; }
+  .row.impact { border-color: rgba(232,200,138,.34); }
+  .row.impact .term { color: #F3D9A4; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">朱元璋K线人生 · 观看规则</div>
+  <h1>五个价格，翻译成人生</h1>
+  <div class="sub">先把隐喻定死，再谈实现——这是整个项目的地基</div>
+
+  <div class="rows">
+    <div class="row"><span class="term">开盘价</span><span class="arrow">→</span><span class="mean">阶段起点的处境</span></div>
+    <div class="row"><span class="term">收盘价</span><span class="arrow">→</span><span class="mean">阶段结束后的处境</span></div>
+    <div class="row"><span class="term">最高价</span><span class="arrow">→</span><span class="mean">阶段内触及过的机会或权力上限</span></div>
+    <div class="row"><span class="term">最低价</span><span class="arrow">→</span><span class="mean">阶段内承受的风险与代价</span></div>
+    <div class="row impact"><span class="term">冲击量</span><span class="arrow">→</span><span class="mean">这件事改变人生走势的强度</span></div>
+  </div>
+
+  <div class="foot">所有数值都是叙事指数，只帮你看趋势，不是史学定量结论</div>
+</body>
+</html>

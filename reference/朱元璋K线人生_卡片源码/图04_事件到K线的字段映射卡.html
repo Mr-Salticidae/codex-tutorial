@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="base.css" />
+<style>
+  .wrap { display: grid; grid-template-columns: 1fr 96px 1fr; align-items: center; gap: 30px; width: 100%; max-width: 2000px; }
+  .side { background: linear-gradient(160deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+          border: 1px solid rgba(255,255,255,.085); border-radius: 22px; padding: 46px 48px; }
+  .side.out { border-color: rgba(232,200,138,.34); }
+  .cap { font-size: 25px; letter-spacing: .3em; color: #8A8F9C; margin-bottom: 26px; }
+  .story { font-size: 41px; line-height: 1.62; color: #E9ECF2; }
+  .story b { color: #F3D9A4; }
+  .big-arrow { font-size: 62px; color: #6E7482; text-align: center; }
+  .kv { display: grid; grid-template-columns: 210px 1fr; gap: 14px 26px; font-size: 35px; }
+  .k { color: #8A8F9C; letter-spacing: .04em; }
+  .v { color: #E9ECF2; }
+  .v.hi { color: #E8C88A; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">朱元璋K线人生 · 数据口径</div>
+  <h1>一条史料，怎么变成一根K线</h1>
+  <div class="sub">口径定好之后，剩下的是体力活——交给 Codex</div>
+
+  <div class="wrap">
+    <div class="side">
+      <div class="cap">你给的一句话</div>
+      <div class="story"><b>1368 年，约 40 岁</b><br />在应天即皇帝位，国号大明，建元洪武。</div>
+    </div>
+
+    <div class="big-arrow">→</div>
+
+    <div class="side out">
+      <div class="cap">它填出的一条数据</div>
+      <div class="kv">
+        <span class="k">年份 / 年龄</span><span class="v">1368 · 约40岁</span>
+        <span class="k">事件标题</span><span class="v">称帝建明</span>
+        <span class="k">开盘 → 收盘</span><span class="v hi">89 → 94</span>
+        <span class="k">最高 / 最低</span><span class="v">96 / 84</span>
+        <span class="k">冲击量</span><span class="v hi">100（全篇峰值）</span>
+        <span class="k">阶段</span><span class="v">权力峰值</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">27 个年龄切片，五章，同一年可以有多条</div>
+</body>
+</html>

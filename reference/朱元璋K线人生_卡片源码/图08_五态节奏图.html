@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="base.css" />
+<style>
+  .flow { display: flex; align-items: stretch; gap: 18px; width: 100%; max-width: 2050px; }
+  .st { flex: 1; background: linear-gradient(160deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+        border: 1px solid rgba(255,255,255,.085); border-radius: 22px; padding: 34px 26px; text-align: center; }
+  .st .n { font-size: 24px; color: #6E7482; letter-spacing: .22em; margin-bottom: 16px; }
+  .st .t { font-size: 37px; font-weight: 700; color: #E8C88A; letter-spacing: .04em; margin-bottom: 14px; }
+  .st .d { font-size: 26px; color: #9AA0AD; line-height: 1.6; }
+  .st.gate { border-color: rgba(232,200,138,.42); background: linear-gradient(160deg, rgba(232,200,138,.10), rgba(232,200,138,.02)); }
+  .sep { align-self: center; font-size: 34px; color: #6E7482; }
+  .sep.key { color: #E8C88A; font-size: 27px; letter-spacing: .04em; white-space: nowrap; }
+  .loop { margin-top: 40px; font-size: 30px; color: #9AA0AD; letter-spacing: .04em; text-align: center; }
+  .loop b { color: #F3D9A4; }
+  .note { margin-top: 26px; font-size: 28px; color: #8A8F9C; text-align: center; letter-spacing: .03em; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">朱元璋K线人生 · 播放状态机</div>
+  <h1>一次播放，五种状态</h1>
+  <div class="sub">节奏交回观众手里：两处需要你按下才继续</div>
+
+  <div class="flow">
+    <div class="st gate">
+      <div class="n">01</div>
+      <div class="t">开场命题</div>
+      <div class="d">停住等你按空格<br />或轻点开始</div>
+    </div>
+    <div class="sep key">空格&nbsp;↓</div>
+    <div class="st">
+      <div class="n">02</div>
+      <div class="t">节点旅行</div>
+      <div class="d">镜头横向跟拍<br />普通节点快速扫过</div>
+    </div>
+    <div class="sep">→</div>
+    <div class="st">
+      <div class="n">03</div>
+      <div class="t">重点停留</div>
+      <div class="d">关键节点放慢<br />延长停留</div>
+    </div>
+    <div class="sep">→</div>
+    <div class="st gate">
+      <div class="n">04</div>
+      <div class="t">章节回望</div>
+      <div class="d">拉远看全章<br />然后停住等你继续</div>
+    </div>
+    <div class="sep key">空格&nbsp;↓</div>
+    <div class="st">
+      <div class="n">05</div>
+      <div class="t">全局回望</div>
+      <div class="d">七十年一次收束<br />可重播一生</div>
+    </div>
+  </div>
+
+  <div class="loop">第 02 至 04 步循环五次 —— <b>乱世低开 · 义军起势 · 逐鹿天下 · 洪武定盘 · 高位余震</b></div>
+  <div class="note">镜头位置、揭示进度、叙事卡片各自独立派生，切节点时不会把总进度带乱</div>
+</body>
+</html>
