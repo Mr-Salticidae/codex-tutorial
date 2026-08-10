@@ -1,0 +1,1906 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>千古风云 · K线大乱斗</title>
+  <style>
+    :root {
+      --paper: #faf8f3;
+      --paper-2: #fffdfa;
+      --paper-3: #eee8dd;
+      --ink: #1b1813;
+      --ink-soft: #6b6357;
+      --line: #e2d8c7;
+      --line-strong: #cdbfa9;
+      --accent: #6d4aff;
+      --accent-soft: #eee9ff;
+      --cinnabar: #c84630;
+      --jade: #3f7f68;
+      --gold: #b9852d;
+      --shadow: 30, 24, 20;
+      --serif: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif;
+      --sans: "PingFang SC", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(27, 24, 19, .024) 1px, transparent 1px),
+        linear-gradient(180deg, var(--paper), var(--paper-3) 72%, var(--paper));
+      background-size: 8.333% 100%, auto;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    a {
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .app {
+      height: 100dvh;
+      min-height: 620px;
+      padding:
+        max(.9rem, env(safe-area-inset-top))
+        max(.9rem, env(safe-area-inset-right))
+        max(.9rem, env(safe-area-inset-bottom))
+        max(.9rem, env(safe-area-inset-left));
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: .75rem;
+    }
+
+    .topbar {
+      width: min(96rem, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 1rem;
+    }
+
+    .kicker {
+      margin: 0 0 .14rem;
+      color: var(--ink-soft);
+      font-size: .68rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3.4vw, 3.05rem);
+      line-height: 1.05;
+      letter-spacing: .04em;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: .36rem 0 0;
+      color: var(--ink-soft);
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: .42rem;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      min-width: 5.5rem;
+      padding: .34rem .62rem;
+      border-left: 1px solid var(--line-strong);
+      color: var(--ink-soft);
+      font-size: .68rem;
+      line-height: 1.25;
+    }
+
+    .metric strong {
+      display: block;
+      max-width: 9rem;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: .9rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stage {
+      position: relative;
+      width: min(96rem, 100%);
+      min-height: 0;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(rgba(27, 24, 19, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(27, 24, 19, .04) 1px, transparent 1px),
+        color-mix(in srgb, var(--paper-2) 91%, transparent);
+      background-size: 100% 20%, 8.333% 100%, auto;
+      box-shadow: 0 28px 84px -46px rgba(var(--shadow), .56);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .battle-hud {
+      position: absolute;
+      z-index: 2;
+      top: .82rem;
+      left: .9rem;
+      right: .9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .8rem;
+      pointer-events: none;
+    }
+
+    .round {
+      display: flex;
+      align-items: baseline;
+      gap: .45rem;
+      min-width: 0;
+    }
+
+    .round strong {
+      font-family: var(--serif);
+      font-size: .95rem;
+      white-space: nowrap;
+    }
+
+    .round span {
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-size: .69rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .age-readout {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .age-readout b {
+      color: var(--cinnabar);
+      font-size: 1.28rem;
+    }
+
+    .scoreboard {
+      position: absolute;
+      z-index: 2;
+      top: 3.2rem;
+      right: .82rem;
+      width: 13.5rem;
+      display: grid;
+      gap: .3rem;
+      pointer-events: none;
+    }
+
+    .score-row {
+      --fighter: var(--accent);
+      min-height: 2.58rem;
+      padding: .42rem .52rem;
+      display: grid;
+      grid-template-columns: 1.2rem minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .38rem;
+      border: 1px solid color-mix(in srgb, var(--fighter) 35%, var(--line));
+      border-left: 3px solid var(--fighter);
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--paper-2) 90%, transparent);
+      backdrop-filter: blur(9px);
+      transition: transform .28s cubic-bezier(.22, 1, .36, 1), border-color .28s ease;
+    }
+
+    .score-row.is-leader {
+      transform: translateX(-.25rem);
+      border-color: color-mix(in srgb, var(--fighter) 70%, var(--line));
+    }
+
+    .score-rank {
+      color: var(--ink-soft);
+      font-family: var(--serif);
+      font-size: .76rem;
+    }
+
+    .score-name {
+      overflow: hidden;
+      font-family: var(--serif);
+      font-size: .82rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .score-value {
+      font-size: .76rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+
+    .score-state {
+      grid-column: 2 / 4;
+      margin-top: -.22rem;
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-size: .6rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-card {
+      --fighter: var(--accent);
+      position: absolute;
+      z-index: 2;
+      left: .82rem;
+      bottom: 4.55rem;
+      width: min(32rem, calc(100% - 16rem));
+      min-height: 4.3rem;
+      padding: .72rem .85rem;
+      border: 1px solid color-mix(in srgb, var(--fighter) 42%, var(--line));
+      border-left: 3px solid var(--fighter);
+      border-radius: 7px;
+      background: color-mix(in srgb, var(--paper-2) 92%, transparent);
+      box-shadow: 0 20px 48px -36px rgba(var(--shadow), .7);
+      backdrop-filter: blur(10px);
+    }
+
+    .event-card small {
+      display: block;
+      margin-bottom: .18rem;
+      color: var(--ink-soft);
+      font-size: .62rem;
+      letter-spacing: .1em;
+    }
+
+    .event-card strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: .96rem;
+      line-height: 1.35;
+    }
+
+    .event-card p {
+      margin: .18rem 0 0;
+      color: var(--ink-soft);
+      font-size: .74rem;
+      line-height: 1.5;
+    }
+
+    .controls {
+      position: absolute;
+      z-index: 3;
+      right: .82rem;
+      bottom: .78rem;
+      display: flex;
+      align-items: center;
+      gap: .32rem;
+      padding: .34rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper-2) 91%, transparent);
+      backdrop-filter: blur(11px);
+    }
+
+    .icon-btn,
+    .text-btn {
+      height: 2.2rem;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      transition: background .2s ease, color .2s ease, transform .2s ease;
+    }
+
+    .icon-btn {
+      width: 2.2rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .text-btn {
+      padding: 0 .72rem;
+      font-size: .72rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn:hover,
+    .text-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .icon-btn:active,
+    .text-btn:active {
+      transform: scale(.96);
+    }
+
+    .icon {
+      width: 1.02rem;
+      height: 1.02rem;
+      display: block;
+    }
+
+    .progress {
+      position: absolute;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--line) 72%, transparent);
+      pointer-events: none;
+    }
+
+    .progress i {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cinnabar), var(--gold), var(--accent));
+      transform-origin: left;
+    }
+
+    .draft-overlay,
+    .result-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      padding: 1.2rem;
+      background: color-mix(in srgb, var(--paper-2) 95%, transparent);
+      backdrop-filter: blur(10px);
+      transition: opacity .36s cubic-bezier(.22, 1, .36, 1), visibility .36s;
+    }
+
+    .draft-overlay.is-hidden,
+    .result-overlay.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .draft-panel {
+      width: min(58rem, 100%);
+      display: grid;
+      gap: .86rem;
+    }
+
+    .draft-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .draft-head span,
+    .result-panel > span {
+      color: var(--cinnabar);
+      font-size: .65rem;
+      letter-spacing: .2em;
+    }
+
+    .draft-head h2,
+    .result-panel h2 {
+      margin: .16rem 0 0;
+      font-family: var(--serif);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+      line-height: 1.18;
+    }
+
+    .draft-count {
+      color: var(--ink-soft);
+      font-size: .72rem;
+      white-space: nowrap;
+    }
+
+    .draft-count b {
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 1.15rem;
+    }
+
+    .fighter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .52rem;
+    }
+
+    .fighter-btn {
+      --fighter: var(--accent);
+      position: relative;
+      min-width: 0;
+      min-height: 5.2rem;
+      padding: .66rem .7rem .62rem;
+      display: grid;
+      grid-template-columns: 2.25rem minmax(0, 1fr);
+      align-items: center;
+      gap: .58rem;
+      overflow: hidden;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: color-mix(in srgb, var(--paper-2) 82%, transparent);
+      transition: border-color .22s ease, background .22s ease, transform .22s ease, opacity .22s ease;
+    }
+
+    .fighter-btn::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: var(--fighter);
+      opacity: .25;
+      transition: opacity .22s ease;
+    }
+
+    .fighter-btn:hover {
+      border-color: color-mix(in srgb, var(--fighter) 48%, var(--line));
+      transform: translateY(-2px);
+    }
+
+    .fighter-btn.is-selected {
+      border-color: color-mix(in srgb, var(--fighter) 75%, var(--line));
+      background: color-mix(in srgb, var(--fighter) 8%, var(--paper-2));
+    }
+
+    .fighter-btn.is-selected::before {
+      opacity: 1;
+    }
+
+    .fighter-btn:disabled {
+      cursor: not-allowed;
+      opacity: .42;
+      transform: none;
+    }
+
+    .fighter-mark {
+      width: 2.25rem;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid color-mix(in srgb, var(--fighter) 48%, var(--line));
+      border-radius: 50%;
+      color: var(--fighter);
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .fighter-copy {
+      min-width: 0;
+    }
+
+    .fighter-copy strong {
+      display: block;
+      overflow: hidden;
+      font-family: var(--serif);
+      font-size: .92rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fighter-copy small {
+      display: block;
+      margin-top: .15rem;
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-size: .62rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .rule-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .7rem;
+    }
+
+    .rule-label {
+      color: var(--ink-soft);
+      font-size: .68rem;
+      white-space: nowrap;
+    }
+
+    .rule-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--paper-3);
+    }
+
+    .rule-btn {
+      min-height: 2.28rem;
+      padding: 0 .68rem;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: .7rem;
+      white-space: nowrap;
+    }
+
+    .rule-btn[aria-pressed="true"] {
+      color: var(--ink);
+      background: var(--paper-2);
+      box-shadow: 0 8px 24px -20px rgba(var(--shadow), .7);
+    }
+
+    .start-btn {
+      min-height: 2.65rem;
+      padding: 0 1.1rem;
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      color: var(--paper-2);
+      background: var(--ink);
+      font-size: .75rem;
+      white-space: nowrap;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .start-btn:disabled {
+      cursor: not-allowed;
+      opacity: .35;
+      transform: none;
+    }
+
+    .result-panel {
+      width: min(34rem, 100%);
+      text-align: center;
+    }
+
+    .winner-name {
+      margin: .6rem 0 .2rem;
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 9vw, 5.2rem);
+      line-height: 1;
+    }
+
+    .winner-reason {
+      margin: .55rem auto 0;
+      max-width: 27rem;
+      color: var(--ink-soft);
+      font-size: .78rem;
+      line-height: 1.6;
+    }
+
+    .final-ranking {
+      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: .4rem;
+      flex-wrap: wrap;
+    }
+
+    .final-ranking span {
+      --fighter: var(--accent);
+      padding: .32rem .55rem;
+      border-bottom: 2px solid var(--fighter);
+      font-family: var(--serif);
+      font-size: .74rem;
+    }
+
+    .result-actions {
+      display: flex;
+      justify-content: center;
+      gap: .48rem;
+    }
+
+    .result-actions button {
+      min-height: 2.35rem;
+      padding: 0 .9rem;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: var(--paper-2);
+      font-size: .72rem;
+    }
+
+    .result-actions .primary {
+      color: var(--paper-2);
+      border-color: var(--ink);
+      background: var(--ink);
+    }
+
+    .info-dialog {
+      width: min(35rem, calc(100% - 1.5rem));
+      max-height: min(38rem, calc(100dvh - 2rem));
+      padding: 0;
+      overflow: hidden;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper-2);
+      box-shadow: 0 30px 90px -38px rgba(var(--shadow), .72);
+    }
+
+    .info-dialog::backdrop {
+      background: rgba(27, 24, 19, .28);
+      backdrop-filter: blur(4px);
+    }
+
+    .dialog-head {
+      padding: .85rem .95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .dialog-head strong {
+      font-family: var(--serif);
+    }
+
+    .dialog-body {
+      max-height: calc(100dvh - 8rem);
+      padding: .9rem .95rem 1rem;
+      overflow: auto;
+      color: var(--ink-soft);
+      font-size: .76rem;
+      line-height: 1.65;
+    }
+
+    .dialog-body p {
+      margin: 0 0 .7rem;
+    }
+
+    .dialog-body strong {
+      color: var(--ink);
+    }
+
+    .dialog-body ul {
+      margin: .45rem 0 0;
+      padding-left: 1.1rem;
+    }
+
+    .dialog-body a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        min-height: 560px;
+        padding: .72rem;
+        gap: .55rem;
+      }
+
+      .topbar {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+        gap: .38rem;
+      }
+
+      h1 { font-size: 2rem; }
+      .subtitle { display: none; }
+
+      .meta {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow: hidden;
+      }
+
+      .metric {
+        min-width: 0;
+        flex: 1 1 0;
+        padding: .22rem .45rem;
+      }
+
+      .metric strong {
+        max-width: none;
+        font-size: .78rem;
+      }
+
+      .scoreboard {
+        top: 3.05rem;
+        left: .58rem;
+        right: .58rem;
+        width: auto;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: .22rem;
+      }
+
+      .score-row {
+        min-width: 0;
+        min-height: 3rem;
+        padding: .35rem .38rem;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: .22rem;
+        border-left-width: 2px;
+      }
+
+      .score-row.is-leader {
+        transform: translateY(.2rem);
+      }
+
+      .score-rank {
+        font-size: .62rem;
+      }
+
+      .score-name {
+        font-size: .7rem;
+      }
+
+      .score-value {
+        grid-column: 1 / 3;
+        font-size: .72rem;
+      }
+
+      .score-state { display: none; }
+
+      .event-card {
+        left: .58rem;
+        right: .58rem;
+        bottom: 4.25rem;
+        width: auto;
+        min-height: 4.05rem;
+      }
+
+      .event-card p {
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .controls {
+        left: .58rem;
+        right: .58rem;
+        bottom: .58rem;
+        justify-content: space-between;
+      }
+
+      .text-btn {
+        flex: 1;
+        padding: 0 .45rem;
+      }
+
+      .fighter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .draft-overlay {
+        place-items: start center;
+        overflow-y: auto;
+      }
+
+      .draft-panel {
+        margin: auto 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        min-height: 520px;
+        padding: .58rem;
+      }
+
+      .kicker {
+        font-size: .58rem;
+        letter-spacing: .2em;
+      }
+
+      h1 { font-size: 1.62rem; }
+
+      .metric {
+        border-left-color: var(--line);
+        font-size: .58rem;
+      }
+
+      .metric:nth-child(3) { display: none; }
+
+      .metric strong {
+        font-size: .72rem;
+      }
+
+      .battle-hud {
+        top: .58rem;
+        left: .62rem;
+        right: .62rem;
+      }
+
+      .round strong {
+        font-size: .78rem;
+      }
+
+      .round span {
+        font-size: .6rem;
+      }
+
+      .age-readout {
+        font-size: .72rem;
+      }
+
+      .age-readout b {
+        font-size: 1rem;
+      }
+
+      .scoreboard {
+        top: 2.55rem;
+      }
+
+      .score-row {
+        padding: .32rem .28rem;
+      }
+
+      .score-rank { display: none; }
+      .score-name { grid-column: 1 / 3; }
+
+      .event-card {
+        padding: .58rem .65rem;
+      }
+
+      .event-card small {
+        font-size: .56rem;
+      }
+
+      .event-card strong {
+        font-size: .82rem;
+      }
+
+      .event-card p {
+        font-size: .66rem;
+        line-clamp: 1;
+        -webkit-line-clamp: 1;
+      }
+
+      .controls {
+        gap: .18rem;
+        padding: .28rem;
+      }
+
+      .icon-btn {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .text-btn {
+        height: 2rem;
+        font-size: .66rem;
+      }
+
+      .draft-overlay,
+      .result-overlay {
+        padding: .72rem;
+      }
+
+      .draft-panel {
+        gap: .58rem;
+      }
+
+      .draft-head {
+        position: relative;
+        display: block;
+      }
+
+      .draft-count {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+
+      .draft-head h2 {
+        font-size: 1.3rem;
+      }
+
+      .fighter-grid {
+        gap: .34rem;
+      }
+
+      .fighter-btn {
+        min-height: 4.45rem;
+        padding: .46rem .5rem;
+        grid-template-columns: 1.8rem minmax(0, 1fr);
+        gap: .42rem;
+      }
+
+      .fighter-mark {
+        width: 1.8rem;
+        font-size: .82rem;
+      }
+
+      .fighter-copy strong {
+        font-size: .8rem;
+      }
+
+      .fighter-copy small {
+        font-size: .56rem;
+      }
+
+      .rule-row {
+        grid-template-columns: 1fr auto;
+        gap: .45rem;
+      }
+
+      .rule-label {
+        grid-column: 1 / 3;
+      }
+
+      .rule-btn {
+        min-height: 2.15rem;
+        padding: 0 .28rem;
+        font-size: .62rem;
+      }
+
+      .start-btn {
+        min-height: 2.35rem;
+        padding: 0 .7rem;
+      }
+    }
+
+    @media (max-height: 680px) and (min-width: 901px) {
+      .app {
+        min-height: 520px;
+        padding: .65rem;
+        gap: .48rem;
+      }
+
+      h1 { font-size: 2rem; }
+      .subtitle { display: none; }
+      .fighter-btn { min-height: 4.45rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .score-row,
+      .icon-btn,
+      .text-btn,
+      .fighter-btn,
+      .draft-overlay,
+      .result-overlay {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="kicker">Historical Candlestick · Arena</p>
+        <h1>千古风云 · K线大乱斗</h1>
+        <p class="subtitle">选四位历史人物，以同龄坐标看命运曲线正面交锋。胜负来自你选择的规则，不是人物价值排名。</p>
+      </div>
+      <div class="meta" aria-label="战局摘要">
+        <span class="metric"><strong id="leaderMetric">等待开局</strong>当前领跑</span>
+        <span class="metric"><strong id="ruleMetric">综合势能</strong>胜负规则</span>
+        <span class="metric"><strong>8选4</strong>群雄阵容</span>
+      </div>
+    </header>
+
+    <section class="stage" id="stage" aria-label="历史人物同龄K线竞技场">
+      <h2 class="sr-only">历史人物同龄K线竞技场</h2>
+      <canvas id="arenaCanvas" aria-label="四位历史人物随年龄推进的叙事K线对比图"></canvas>
+
+      <div class="battle-hud" aria-live="polite">
+        <div class="round">
+          <strong id="roundLabel">生涯开盘</strong>
+          <span id="roundSub">选择四位人物与胜负规则</span>
+        </div>
+        <span class="age-readout"><b id="ageValue">0</b> 岁</span>
+      </div>
+
+      <aside class="scoreboard" id="scoreboard" aria-label="实时排名"></aside>
+
+      <article class="event-card" id="eventCard" aria-live="polite">
+        <small>命运事件</small>
+        <strong>等待四位人物入场</strong>
+        <p>曲线按年龄对齐，事件节点会追随先行线逐个出现。</p>
+      </article>
+
+      <div class="controls" aria-label="战局控制">
+        <button class="icon-btn" id="playBtn" type="button" aria-label="播放或暂停">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z" fill="currentColor"/></svg>
+        </button>
+        <button class="icon-btn" id="restartBtn" type="button" aria-label="重新开局">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="text-btn" id="speedBtn" type="button" aria-label="切换播放速度">1.0×</button>
+        <button class="text-btn" id="draftBtn" type="button">重选阵容</button>
+        <button class="icon-btn" id="infoBtn" type="button" aria-label="查看规则与史料">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 10.8v5.4M12 7.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+      <section class="draft-overlay" id="draftOverlay" aria-labelledby="draftTitle">
+        <div class="draft-panel">
+          <div class="draft-head">
+            <div>
+              <span>第一步 · 选将</span>
+              <h2 id="draftTitle">选四位，放进同一条人生赛道</h2>
+            </div>
+            <div class="draft-count"><b id="draftCount">4</b> / 4 已选</div>
+          </div>
+          <div class="fighter-grid" id="fighterGrid" aria-label="历史人物候选"></div>
+          <div class="rule-row">
+            <span class="rule-label">第二步 · 定胜负</span>
+            <div class="rule-tabs" id="ruleTabs" aria-label="胜负规则"></div>
+            <button class="start-btn" id="startBtn" type="button">开局</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="result-overlay is-hidden" id="resultOverlay" aria-labelledby="resultTitle" aria-live="polite">
+        <div class="result-panel">
+          <span id="resultKicker">本局赢家 · 综合势能</span>
+          <h2 id="resultTitle" class="winner-name">朱元璋</h2>
+          <p class="winner-reason" id="winnerReason"></p>
+          <div class="final-ranking" id="finalRanking" aria-label="最终排名"></div>
+          <div class="result-actions">
+            <button class="primary" id="replayBtn" type="button">同阵容再战</button>
+            <button id="redraftBtn" type="button">重选阵容</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <dialog class="info-dialog" id="infoDialog" aria-labelledby="infoTitle">
+      <div class="dialog-head">
+        <strong id="infoTitle">规则与史料边界</strong>
+        <button class="icon-btn" id="closeInfoBtn" type="button" aria-label="关闭">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog-body">
+        <p><strong>怎么看：</strong>横轴统一为年龄，纵轴是 0—100 的叙事局势指数。实心节点表示阶段上行，空心节点表示阶段回撤；人物去世后曲线封盘。</p>
+        <p><strong>怎么算：</strong>综合势能看峰值、全程均值与最大反弹；逆风翻盘只看低点后的最大涨幅；高位续航看全程均值与处于高位的时间比例。</p>
+        <p><strong>诚实边界：</strong>年龄按公历年份粗算，未逐项换算古代虚岁与具体生日。节点是历史概括，指数是创作用途，不用于评价人物道德、功过或真实历史地位。</p>
+        <p><strong>交叉核对来源：</strong></p>
+        <ul>
+          <li><a href="https://www.nationalgeographic.com/culture/article/qin-shi-huangdi" target="_blank" rel="noreferrer">National Geographic · Qin Shi Huangdi</a></li>
+          <li><a href="https://www.worldhistory.org/Cao_Cao/" target="_blank" rel="noreferrer">World History Encyclopedia · Cao Cao</a></li>
+          <li><a href="https://www.metmuseum.org/essays/tang-dynasty-618-906" target="_blank" rel="noreferrer">The Met · Tang Dynasty</a></li>
+          <li><a href="https://www.worldhistory.org/Wu_Zetian/" target="_blank" rel="noreferrer">World History Encyclopedia · Wu Zetian</a></li>
+          <li><a href="https://www.cambridge.org/core/journals/journal-of-chinese-history/article/toward-a-nation-defined-by-state-tattooed-loyalty-and-the-evolution-of-yue-feis-11031142-image-from-the-song-to-the-present/D36D331BEBA1C16188E89856AAFB533B" target="_blank" rel="noreferrer">Cambridge · Yue Fei</a></li>
+          <li><a href="https://www.dpm.org.cn/court/lineage/226256.html" target="_blank" rel="noreferrer">故宫博物院 · 康熙皇帝</a></li>
+        </ul>
+      </div>
+    </dialog>
+  </main>
+
+  <script>
+    const FIGURES = [
+      {
+        id: 'qin',
+        name: '秦始皇',
+        mark: '秦',
+        dynasty: '秦',
+        years: '前259—前210',
+        lifespan: 49,
+        color: '#c84630',
+        trait: '统一开图',
+        events: [
+          { age: 0, year: '前259', title: '生于邯郸', score: 18, swing: 5, note: '生于赵国都城邯郸，少年时期身处战国权力漩涡。' },
+          { age: 13, year: '前247', title: '继承秦王位', score: 36, swing: 8, note: '少年即位，秦国朝政一度由相邦与太后势力主导。' },
+          { age: 21, year: '前238', title: '开始亲政', score: 54, swing: 11, note: '平定内廷危机后掌握实权，统一战争进入加速阶段。' },
+          { age: 29, year: '前230', title: '灭韩启幕', score: 70, swing: 9, note: '秦灭韩国，六国兼并进入连续收官。' },
+          { age: 38, year: '前221', title: '统一六国', score: 100, swing: 13, note: '完成统一并创制“皇帝”称号，建立秦朝。' },
+          { age: 42, year: '前217', title: '制度一体化', score: 94, swing: 10, note: '郡县、文字、度量衡等制度持续向帝国范围推行。' },
+          { age: 49, year: '前210', title: '沙丘病逝', score: 58, swing: 18, note: '巡行途中病逝，帝国随即进入继承与秩序危机。' }
+        ]
+      },
+      {
+        id: 'hanwu',
+        name: '汉武帝',
+        mark: '汉',
+        dynasty: '西汉',
+        years: '前156—前87',
+        lifespan: 69,
+        color: '#b9852d',
+        trait: '长线扩张',
+        events: [
+          { age: 0, year: '前156', title: '生于长安', score: 27, swing: 4, note: '作为汉景帝之子出生，进入稳定扩张期的皇室。' },
+          { age: 16, year: '前141', title: '即皇帝位', score: 58, swing: 7, note: '少年即位，随后逐步推动中央集权与制度调整。' },
+          { age: 23, year: '前133', title: '马邑谋攻', score: 61, swing: 12, note: '汉匈关系从和亲转向主动军事对抗。' },
+          { age: 27, year: '前129', title: '北击匈奴', score: 72, swing: 10, note: '多路出击匈奴，帝国战略转为持续外向推进。' },
+          { age: 35, year: '前121', title: '河西拓境', score: 88, swing: 9, note: '河西战事改变西北格局，通往西域的通道被打开。' },
+          { age: 45, year: '前111', title: '版图扩展', score: 97, swing: 12, note: '南越等地纳入汉朝版图，帝国影响达到高位。' },
+          { age: 65, year: '前91', title: '巫蛊之祸', score: 63, swing: 20, note: '晚年政治危机重创储位与朝局，曲线显著回撤。' },
+          { age: 67, year: '前89', title: '轮台诏转向', score: 72, swing: 8, note: '政策重心转向休养生息，晚年开始修正长期征伐。' },
+          { age: 69, year: '前87', title: '病逝五柞宫', score: 70, swing: 6, note: '结束五十余年统治，留下强盛帝国与沉重成本。' }
+        ]
+      },
+      {
+        id: 'cao',
+        name: '曹操',
+        mark: '曹',
+        dynasty: '东汉末',
+        years: '155—220',
+        lifespan: 65,
+        color: '#5f55a8',
+        trait: '乱世破局',
+        events: [
+          { age: 0, year: '155', title: '生于谯县', score: 20, swing: 5, note: '出生于官宦家庭，东汉秩序尚未全面崩解。' },
+          { age: 20, year: '175', title: '入仕洛阳', score: 31, swing: 7, note: '进入官场，以强硬执法建立早期名声。' },
+          { age: 35, year: '190', title: '起兵讨董', score: 45, swing: 13, note: '组织武装参与讨董联盟，从官员转为乱世军政首领。' },
+          { age: 41, year: '196', title: '迎帝都许', score: 64, swing: 12, note: '迎汉献帝至许县并推行屯田，政治与后勤优势成形。' },
+          { age: 45, year: '200', title: '官渡取胜', score: 86, swing: 14, note: '击败袁绍主力，北方格局由此转向曹操。' },
+          { age: 53, year: '208', title: '赤壁受挫', score: 61, swing: 18, note: '南下统一行动受挫，三方鼎立格局逐渐固定。' },
+          { age: 58, year: '213', title: '受封魏公', score: 78, swing: 9, note: '政治地位继续抬升，魏国制度框架开始建立。' },
+          { age: 61, year: '216', title: '进爵魏王', score: 87, swing: 8, note: '达到生前权力高位，但未取代汉朝称帝。' },
+          { age: 65, year: '220', title: '病逝洛阳', score: 73, swing: 9, note: '病逝后不久，曹丕代汉建立曹魏。' }
+        ]
+      },
+      {
+        id: 'taizong',
+        name: '李世民',
+        mark: '唐',
+        dynasty: '唐',
+        years: '598—649',
+        lifespan: 51,
+        color: '#326f7d',
+        trait: '攻守一体',
+        events: [
+          { age: 0, year: '598', title: '生于武功', score: 29, swing: 4, note: '出生于关陇贵族家庭，隋末秩序正在失稳。' },
+          { age: 19, year: '617', title: '太原起兵', score: 51, swing: 10, note: '参与太原起兵，成为唐朝建立过程中的核心军事力量。' },
+          { age: 23, year: '621', title: '虎牢决胜', score: 78, swing: 13, note: '击败窦建德并迫使王世充投降，统一战争基本收官。' },
+          { age: 28, year: '626', title: '玄武门之变', score: 84, swing: 18, note: '以高风险宫廷政变夺取储位，随后即皇帝位。' },
+          { age: 32, year: '630', title: '平定东突厥', score: 95, swing: 10, note: '唐军击溃东突厥，北方战略压力显著下降。' },
+          { age: 42, year: '640', title: '经营西域', score: 97, swing: 8, note: '高昌战事后，唐朝对西域的影响进一步扩大。' },
+          { age: 47, year: '645', title: '辽东受阻', score: 82, swing: 14, note: '亲征高句丽未能完成既定目标，盛势出现回撤。' },
+          { age: 51, year: '649', title: '病逝含风殿', score: 87, swing: 7, note: '贞观时代结束，其制度与政治风格长期成为后世参照。' }
+        ]
+      },
+      {
+        id: 'wu',
+        name: '武则天',
+        mark: '武',
+        dynasty: '唐周',
+        years: '624—705',
+        lifespan: 81,
+        color: '#a8497a',
+        trait: '后程登顶',
+        events: [
+          { age: 0, year: '624', title: '生于利州', score: 21, swing: 4, note: '出生于官宦家庭，获得当时女性少见的教育条件。' },
+          { age: 14, year: '638', title: '入唐宫', score: 30, swing: 7, note: '进入唐太宗后宫，开始漫长而高风险的宫廷生涯。' },
+          { age: 31, year: '655', title: '册立皇后', score: 53, swing: 13, note: '成为唐高宗皇后，正式进入最高权力中枢。' },
+          { age: 36, year: '660', title: '参与朝政', score: 67, swing: 10, note: '高宗健康转差后，持续参与政务与人事决策。' },
+          { age: 59, year: '683', title: '临朝称制', score: 80, swing: 11, note: '高宗去世后以皇太后身份掌握朝廷实际权力。' },
+          { age: 66, year: '690', title: '称帝建周', score: 100, swing: 15, note: '改国号为周并称帝，成为中国历史上唯一公认的女皇帝。' },
+          { age: 74, year: '698', title: '重定继承', score: 93, swing: 9, note: '召回李显并重定储位，开始处理政权延续问题。' },
+          { age: 81, year: '705', title: '退位病逝', score: 67, swing: 17, note: '神龙政变后退位，同年病逝，唐朝国号恢复。' }
+        ]
+      },
+      {
+        id: 'yue',
+        name: '岳飞',
+        mark: '岳',
+        dynasty: '南宋',
+        years: '1103—1142',
+        lifespan: 39,
+        color: '#3f7f68',
+        trait: '短线冲锋',
+        events: [
+          { age: 0, year: '1103', title: '生于汤阴', score: 16, swing: 4, note: '出生于普通农家，北宋尚处于危机前夜。' },
+          { age: 19, year: '1122', title: '投身军旅', score: 29, swing: 7, note: '加入宋军，开始近二十年的军旅生涯。' },
+          { age: 24, year: '1127', title: '转战抗金', score: 45, swing: 11, note: '靖康之变后继续抗金，在南宋重建期辗转作战。' },
+          { age: 31, year: '1134', title: '收复襄阳', score: 74, swing: 13, note: '收复襄阳六郡，岳家军成为南宋重要主力。' },
+          { age: 37, year: '1140', title: '北伐连捷', score: 97, swing: 15, note: '郾城等战事取得进展，军事声望达到高点。' },
+          { age: 38, year: '1141', title: '奉诏班师', score: 62, swing: 19, note: '南宋转向议和，前线部队奉诏撤回。' },
+          { age: 39, year: '1142', title: '遇害临安', score: 18, swing: 22, note: '以“莫须有”相关冤狱遇害，人生曲线骤然封盘。' }
+        ]
+      },
+      {
+        id: 'zhu',
+        name: '朱元璋',
+        mark: '明',
+        dynasty: '明',
+        years: '1328—1398',
+        lifespan: 70,
+        color: '#6d4aff',
+        trait: '深V反转',
+        events: [
+          { age: 0, year: '1328', title: '濠州出生', score: 16, swing: 5, note: '出生于贫苦农家，人生从元末乱世低位开盘。' },
+          { age: 16, year: '1344', title: '家破入寺', score: 8, swing: 10, note: '灾荒与疫病击穿家庭，进入皇觉寺求生。' },
+          { age: 24, year: '1352', title: '投奔义军', score: 31, swing: 13, note: '加入郭子兴部，从被动求生转入乱世博弈。' },
+          { age: 28, year: '1356', title: '攻取集庆', score: 56, swing: 12, note: '建立应天根据地，军事集团开始转向稳定政权。' },
+          { age: 35, year: '1363', title: '鄱阳湖决战', score: 78, swing: 16, note: '击败陈友谅主力，南方权力格局被重新定价。' },
+          { age: 40, year: '1368', title: '称帝建明', score: 96, swing: 11, note: '在应天称帝并建立明朝，人生曲线抵达峰值。' },
+          { age: 52, year: '1380', title: '废除丞相', score: 79, swing: 18, note: '胡惟庸案后废除丞相，权力高度集中并引发制度震荡。' },
+          { age: 64, year: '1392', title: '太子朱标去世', score: 62, swing: 17, note: '既定继承安排被打断，晚年政治进入高压调整。' },
+          { age: 70, year: '1398', title: '病逝南京', score: 70, swing: 8, note: '结束三十一年统治，留下统一王朝与集权制度遗产。' }
+        ]
+      },
+      {
+        id: 'kangxi',
+        name: '康熙',
+        mark: '清',
+        dynasty: '清',
+        years: '1654—1722',
+        lifespan: 69,
+        color: '#385f8d',
+        trait: '少年控盘',
+        events: [
+          { age: 0, year: '1654', title: '生于景仁宫', score: 30, swing: 4, note: '出生于紫禁城，清朝仍在完成全国统治的整合。' },
+          { age: 8, year: '1661', title: '少年登基', score: 49, swing: 8, note: '幼年即位，朝政由四位辅政大臣掌握。' },
+          { age: 16, year: '1669', title: '亲掌皇权', score: 64, swing: 11, note: '铲除鳌拜势力后亲政，开始独立处理帝国事务。' },
+          { age: 19, year: '1673', title: '三藩之乱', score: 51, swing: 16, note: '撤藩引发大规模战争，统治面临早期重大压力。' },
+          { age: 27, year: '1681', title: '平定三藩', score: 78, swing: 14, note: '持续八年的战事结束，南方控制重新稳定。' },
+          { age: 29, year: '1683', title: '统一台湾', score: 87, swing: 9, note: '清军攻取澎湖，郑氏政权归降，海疆格局改变。' },
+          { age: 35, year: '1689', title: '尼布楚条约', score: 92, swing: 8, note: '与俄国签订边界条约，东北边境获得阶段性稳定。' },
+          { age: 42, year: '1696', title: '亲征噶尔丹', score: 98, swing: 10, note: '亲率大军出征，进一步巩固北部与西北局势。' },
+          { age: 54, year: '1708', title: '储位危机', score: 76, swing: 15, note: '废黜皇太子后，晚年长期陷入复杂的继承争夺。' },
+          { age: 69, year: '1722', title: '病逝畅春园', score: 80, swing: 7, note: '结束六十一年统治，继承问题交由雍正时代收束。' }
+        ]
+      }
+    ];
+
+    const RULES = {
+      momentum: {
+        label: '综合势能',
+        short: '峰值、均值与反弹',
+        score(metrics) {
+          return metrics.peak * .45 + metrics.mean * .35 + metrics.comeback * .2;
+        },
+        reason(figure, metrics) {
+          return `峰值 ${Math.round(metrics.peak)}，全程均值 ${Math.round(metrics.mean)}，最大反弹 ${Math.round(metrics.comeback)}。`;
+        }
+      },
+      comeback: {
+        label: '逆风翻盘',
+        short: '低点后的最大涨幅',
+        score(metrics) {
+          return metrics.comeback;
+        },
+        reason(figure, metrics) {
+          return `从历史低点向后反弹 ${Math.round(metrics.comeback)} 点，本局翻盘幅度最大。`;
+        }
+      },
+      endurance: {
+        label: '高位续航',
+        short: '均值与高位时间',
+        score(metrics) {
+          return metrics.mean * .72 + metrics.highShare * 28;
+        },
+        reason(figure, metrics) {
+          return `全程均值 ${Math.round(metrics.mean)}，约 ${Math.round(metrics.highShare * 100)}% 的生涯处于 75 点以上。`;
+        }
+      }
+    };
+
+    const DEFAULT_SELECTION = ['qin', 'cao', 'wu', 'zhu'];
+    const SPEEDS = [1, 1.5, 2];
+    const BASE_DURATION = 32;
+    const ROUND_AGES = [0, 18, 30, 45, 60, Infinity];
+    const ROUND_NAMES = ['少年局', '入场局', '破局战', '巅峰战', '收官局'];
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const canvas = document.getElementById('arenaCanvas');
+    const ctx = canvas.getContext('2d');
+    const stage = document.getElementById('stage');
+    const fighterGrid = document.getElementById('fighterGrid');
+    const ruleTabs = document.getElementById('ruleTabs');
+    const draftOverlay = document.getElementById('draftOverlay');
+    const resultOverlay = document.getElementById('resultOverlay');
+    const draftCount = document.getElementById('draftCount');
+    const startBtn = document.getElementById('startBtn');
+    const playBtn = document.getElementById('playBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const speedBtn = document.getElementById('speedBtn');
+    const draftBtn = document.getElementById('draftBtn');
+    const infoBtn = document.getElementById('infoBtn');
+    const infoDialog = document.getElementById('infoDialog');
+    const closeInfoBtn = document.getElementById('closeInfoBtn');
+    const scoreboard = document.getElementById('scoreboard');
+    const eventCard = document.getElementById('eventCard');
+    const roundLabel = document.getElementById('roundLabel');
+    const roundSub = document.getElementById('roundSub');
+    const ageValue = document.getElementById('ageValue');
+    const progressBar = document.getElementById('progressBar');
+    const leaderMetric = document.getElementById('leaderMetric');
+    const ruleMetric = document.getElementById('ruleMetric');
+    const resultKicker = document.getElementById('resultKicker');
+    const resultTitle = document.getElementById('resultTitle');
+    const winnerReason = document.getElementById('winnerReason');
+    const finalRanking = document.getElementById('finalRanking');
+    const replayBtn = document.getElementById('replayBtn');
+    const redraftBtn = document.getElementById('redraftBtn');
+
+    let selectedIds = [...DEFAULT_SELECTION];
+    let selectedRule = 'momentum';
+    let currentAge = 0;
+    let maxAge = 81;
+    let playing = false;
+    let started = false;
+    let finished = false;
+    let speedIndex = 0;
+    let frameId = 0;
+    let lastTime = 0;
+    let lastEventKey = '';
+    let ranking = [];
+
+    function clamp(value, min = 0, max = 1) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function smoothstep(value) {
+      const t = clamp(value);
+      return t * t * (3 - 2 * t);
+    }
+
+    function selectedFigures() {
+      return selectedIds.map((id) => FIGURES.find((figure) => figure.id === id)).filter(Boolean);
+    }
+
+    function eventValueAt(figure, age) {
+      const events = figure.events;
+      if (age <= events[0].age) return events[0].score;
+      if (age >= figure.lifespan) return events[events.length - 1].score;
+      for (let i = 1; i < events.length; i++) {
+        if (age <= events[i].age) {
+          const previous = events[i - 1];
+          const next = events[i];
+          const range = Math.max(1, next.age - previous.age);
+          const t = (age - previous.age) / range;
+          return previous.score + (next.score - previous.score) * t;
+        }
+      }
+      return events[events.length - 1].score;
+    }
+
+    function metricsAt(figure, age) {
+      const end = Math.max(0, Math.min(age, figure.lifespan));
+      const values = [];
+      const samples = Math.max(1, Math.ceil(end));
+      for (let i = 0; i <= samples; i++) {
+        values.push(eventValueAt(figure, Math.min(end, i)));
+      }
+      if (end % 1) values.push(eventValueAt(figure, end));
+      let peak = values[0];
+      let total = 0;
+      let minSeen = values[0];
+      let comeback = 0;
+      let high = 0;
+      values.forEach((value) => {
+        peak = Math.max(peak, value);
+        minSeen = Math.min(minSeen, value);
+        comeback = Math.max(comeback, value - minSeen);
+        total += value;
+        if (value >= 75) high += 1;
+      });
+      return {
+        current: eventValueAt(figure, end),
+        peak,
+        mean: total / values.length,
+        comeback,
+        highShare: high / values.length,
+        sealed: age >= figure.lifespan
+      };
+    }
+
+    function scoreFigure(figure, age = currentAge) {
+      const metrics = metricsAt(figure, age);
+      return {
+        figure,
+        metrics,
+        score: RULES[selectedRule].score(metrics)
+      };
+    }
+
+    function getRanking(age = currentAge) {
+      return selectedFigures()
+        .map((figure) => scoreFigure(figure, age))
+        .sort((a, b) => b.score - a.score || b.metrics.current - a.metrics.current);
+    }
+
+    function renderDraft() {
+      fighterGrid.innerHTML = FIGURES.map((figure) => {
+        const selected = selectedIds.includes(figure.id);
+        const disabled = !selected && selectedIds.length >= 4;
+        return `
+          <button
+            class="fighter-btn${selected ? ' is-selected' : ''}"
+            type="button"
+            data-id="${figure.id}"
+            aria-pressed="${selected}"
+            ${disabled ? 'disabled' : ''}
+            style="--fighter:${figure.color}"
+          >
+            <span class="fighter-mark">${figure.mark}</span>
+            <span class="fighter-copy">
+              <strong>${figure.name}</strong>
+              <small>${figure.dynasty} · ${figure.trait}</small>
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      ruleTabs.innerHTML = Object.entries(RULES).map(([id, rule]) => `
+        <button class="rule-btn" type="button" data-rule="${id}" aria-pressed="${id === selectedRule}">
+          ${rule.label}
+        </button>
+      `).join('');
+
+      draftCount.textContent = String(selectedIds.length);
+      startBtn.disabled = selectedIds.length !== 4;
+      ruleMetric.textContent = RULES[selectedRule].label;
+    }
+
+    function renderScoreboard() {
+      ranking = getRanking();
+      scoreboard.innerHTML = ranking.map((entry, index) => `
+        <div class="score-row${index === 0 ? ' is-leader' : ''}" style="--fighter:${entry.figure.color}">
+          <span class="score-rank">${index + 1}</span>
+          <strong class="score-name">${entry.figure.name}</strong>
+          <span class="score-value">${Math.round(entry.score)}</span>
+          <span class="score-state">${entry.metrics.sealed ? '已封盘' : `${Math.round(entry.metrics.current)} · ${entry.figure.trait}`}</span>
+        </div>
+      `).join('');
+      leaderMetric.textContent = ranking[0]?.figure.name || '等待开局';
+    }
+
+    function roundForAge(age) {
+      for (let i = 0; i < ROUND_AGES.length - 1; i++) {
+        if (age >= ROUND_AGES[i] && age < ROUND_AGES[i + 1]) return i;
+      }
+      return ROUND_NAMES.length - 1;
+    }
+
+    function allBattleEvents() {
+      return selectedFigures()
+        .flatMap((figure) => figure.events.map((event, order) => ({ figure, event, order })))
+        .sort((a, b) => a.event.age - b.event.age || b.event.swing - a.event.swing || a.order - b.order);
+    }
+
+    function activeBattleEvent() {
+      const events = allBattleEvents();
+      let active = events[0];
+      for (const candidate of events) {
+        if (candidate.event.age <= currentAge + .001) active = candidate;
+        else break;
+      }
+      return active;
+    }
+
+    function updateEventCard(force = false) {
+      const active = activeBattleEvent();
+      if (!active) return;
+      const key = `${active.figure.id}-${active.order}`;
+      if (!force && key === lastEventKey) return;
+      lastEventKey = key;
+      eventCard.style.setProperty('--fighter', active.figure.color);
+      eventCard.innerHTML = `
+        <small>${active.event.year} · 约${active.event.age}岁 · ${active.figure.name}</small>
+        <strong>${active.event.title}</strong>
+        <p>${active.event.note}</p>
+      `;
+      if (!reducedMotion && eventCard.animate) {
+        eventCard.animate(
+          [
+            { opacity: .38, transform: 'translateY(7px)' },
+            { opacity: 1, transform: 'translateY(0)' }
+          ],
+          { duration: 280, easing: 'cubic-bezier(.22,1,.36,1)' }
+        );
+      }
+    }
+
+    function updateHud() {
+      const roundIndex = roundForAge(currentAge);
+      roundLabel.textContent = started ? `第${roundIndex + 1}回合 · ${ROUND_NAMES[roundIndex]}` : '生涯开盘';
+      roundSub.textContent = started
+        ? `${RULES[selectedRule].label} · ${RULES[selectedRule].short}`
+        : '选择四位人物与胜负规则';
+      ageValue.textContent = String(Math.min(maxAge, Math.floor(currentAge)));
+      progressBar.style.width = `${clamp(currentAge / maxAge) * 100}%`;
+      renderScoreboard();
+      updateEventCard();
+    }
+
+    function resize() {
+      const ratio = Math.min(2, window.devicePixelRatio || 1);
+      const width = stage.clientWidth;
+      const height = stage.clientHeight;
+      canvas.width = Math.max(1, Math.floor(width * ratio));
+      canvas.height = Math.max(1, Math.floor(height * ratio));
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      draw();
+    }
+
+    function roundedRect(x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+    }
+
+    function draw() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (!width || !height) return;
+      ctx.clearRect(0, 0, width, height);
+
+      const mobile = width < 900;
+      const phone = width < 520;
+      const plot = {
+        x: phone ? 36 : 58,
+        y: mobile ? (phone ? 112 : 124) : 58,
+        w: width - (mobile ? (phone ? 58 : 88) : 292),
+        h: height - (mobile ? (phone ? 294 : 314) : 155)
+      };
+      plot.w = Math.max(150, plot.w);
+      plot.h = Math.max(105, plot.h);
+
+      const inkSoft = getComputedStyle(document.documentElement).getPropertyValue('--ink-soft').trim();
+      const line = getComputedStyle(document.documentElement).getPropertyValue('--line').trim();
+      const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper-2').trim();
+      const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+
+      const xOf = (age) => plot.x + (age / maxAge) * plot.w;
+      const yOf = (value) => plot.y + plot.h - (value / 100) * plot.h;
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = line;
+      ctx.fillStyle = inkSoft;
+      ctx.font = `${phone ? 9 : 11}px ${getComputedStyle(document.body).fontFamily}`;
+      ctx.textBaseline = 'middle';
+
+      [20, 40, 60, 80, 100].forEach((value) => {
+        const y = yOf(value);
+        ctx.globalAlpha = value === 100 ? .55 : .78;
+        ctx.beginPath();
+        ctx.moveTo(plot.x, y);
+        ctx.lineTo(plot.x + plot.w, y);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.textAlign = 'right';
+        ctx.fillText(String(value), plot.x - 8, y);
+      });
+
+      const ageTicks = phone ? [0, 20, 40, 60, 80] : [0, 10, 20, 30, 40, 50, 60, 70, 80];
+      ageTicks.filter((age) => age <= maxAge).forEach((age) => {
+        const x = xOf(age);
+        ctx.globalAlpha = .52;
+        ctx.beginPath();
+        ctx.moveTo(x, plot.y);
+        ctx.lineTo(x, plot.y + plot.h);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.textAlign = 'center';
+        ctx.fillText(`${age}岁`, x, plot.y + plot.h + 18);
+      });
+
+      const labelHeads = [];
+      const figures = selectedFigures();
+      figures.forEach((figure) => {
+        const effectiveAge = Math.min(currentAge, figure.lifespan);
+        const events = figure.events;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(plot.x, plot.y - 24, plot.w, plot.h + 48);
+        ctx.clip();
+
+        ctx.strokeStyle = figure.color;
+        ctx.lineWidth = phone ? 1.6 : 2.1;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = .92;
+        ctx.beginPath();
+        ctx.moveTo(xOf(events[0].age), yOf(events[0].score));
+
+        for (let i = 1; i < events.length; i++) {
+          const previous = events[i - 1];
+          const next = events[i];
+          if (effectiveAge >= next.age) {
+            ctx.lineTo(xOf(next.age), yOf(next.score));
+            continue;
+          }
+          if (effectiveAge > previous.age) {
+            ctx.lineTo(xOf(effectiveAge), yOf(eventValueAt(figure, effectiveAge)));
+          }
+          break;
+        }
+        ctx.stroke();
+
+        events.forEach((event, index) => {
+          if (event.age > currentAge) return;
+          const reveal = reducedMotion ? 1 : smoothstep((currentAge - event.age) / .85);
+          const previousScore = index ? events[index - 1].score : event.score;
+          const up = event.score >= previousScore;
+          const high = Math.min(100, Math.max(previousScore, event.score) + event.swing * .55);
+          const low = Math.max(0, Math.min(previousScore, event.score) - event.swing * .42);
+          const x = xOf(event.age);
+          const openY = yOf(previousScore);
+          const closeY = openY + (yOf(event.score) - openY) * reveal;
+          const wickTop = openY + (yOf(high) - openY) * reveal;
+          const wickBottom = openY + (yOf(low) - openY) * reveal;
+          const bodyTop = Math.min(openY, closeY);
+          const bodyHeight = Math.max(3, Math.abs(closeY - openY));
+          const bodyWidth = phone ? 5 : 7;
+
+          ctx.strokeStyle = figure.color;
+          ctx.lineWidth = index === 0 ? 1 : 1.25;
+          ctx.globalAlpha = .75;
+          ctx.beginPath();
+          ctx.moveTo(x, wickTop);
+          ctx.lineTo(x, wickBottom);
+          ctx.stroke();
+
+          roundedRect(x - bodyWidth / 2, bodyTop, bodyWidth, bodyHeight, 2);
+          if (up) {
+            ctx.fillStyle = figure.color;
+            ctx.fill();
+          } else {
+            ctx.fillStyle = paper;
+            ctx.fill();
+            ctx.strokeStyle = figure.color;
+            ctx.stroke();
+          }
+        });
+
+        const headScore = eventValueAt(figure, effectiveAge);
+        const headX = xOf(effectiveAge);
+        const headY = yOf(headScore);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = figure.color;
+        if (!reducedMotion && playing) {
+          ctx.shadowColor = figure.color;
+          ctx.shadowBlur = phone ? 7 : 12;
+        }
+        ctx.beginPath();
+        ctx.arc(headX, headY, phone ? 2.8 : 3.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        labelHeads.push({
+          figure,
+          x: headX,
+          y: headY,
+          text: currentAge >= figure.lifespan ? `${figure.name} · 封盘` : figure.name
+        });
+      });
+
+      labelHeads.sort((a, b) => a.y - b.y);
+      const labelGap = phone ? 14 : 18;
+      for (let i = 1; i < labelHeads.length; i++) {
+        if (labelHeads[i].y - labelHeads[i - 1].y < labelGap) {
+          labelHeads[i].y = labelHeads[i - 1].y + labelGap;
+        }
+      }
+      const overflow = labelHeads.at(-1)?.y - (plot.y + plot.h);
+      if (overflow > 0) labelHeads.forEach((head) => { head.y -= overflow; });
+
+      ctx.font = `${phone ? 9 : 11}px ${getComputedStyle(document.body).fontFamily}`;
+      ctx.textBaseline = 'middle';
+      labelHeads.forEach((head) => {
+        const placeLeft = head.x > plot.x + plot.w - (phone ? 60 : 86);
+        const labelX = head.x + (placeLeft ? -9 : 9);
+        ctx.textAlign = placeLeft ? 'right' : 'left';
+        ctx.fillStyle = ink;
+        ctx.globalAlpha = .94;
+        ctx.fillText(head.text, labelX, head.y);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function updatePlayIcon() {
+      playBtn.innerHTML = playing
+        ? '<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 5h3v14H7V5Zm7 0h3v14h-3V5Z" fill="currentColor"/></svg>'
+        : '<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z" fill="currentColor"/></svg>';
+    }
+
+    function scheduleFrame() {
+      if (!frameId) frameId = requestAnimationFrame(tick);
+    }
+
+    function tick(now) {
+      frameId = 0;
+      if (!lastTime) lastTime = now;
+      const delta = Math.min(.05, (now - lastTime) / 1000);
+      lastTime = now;
+      if (playing) {
+        currentAge += delta * (maxAge / BASE_DURATION) * SPEEDS[speedIndex];
+        if (currentAge >= maxAge) {
+          currentAge = maxAge;
+          playing = false;
+          finished = true;
+          updatePlayIcon();
+          updateHud();
+          draw();
+          window.setTimeout(showResult, reducedMotion ? 0 : 360);
+          return;
+        }
+        updateHud();
+        draw();
+        scheduleFrame();
+      }
+    }
+
+    function startBattle() {
+      if (selectedIds.length !== 4) return;
+      maxAge = Math.max(...selectedFigures().map((figure) => figure.lifespan));
+      currentAge = 0;
+      started = true;
+      finished = false;
+      playing = true;
+      lastTime = 0;
+      lastEventKey = '';
+      draftOverlay.classList.add('is-hidden');
+      resultOverlay.classList.add('is-hidden');
+      ruleMetric.textContent = RULES[selectedRule].label;
+      updatePlayIcon();
+      updateHud();
+      draw();
+      scheduleFrame();
+    }
+
+    function restartBattle() {
+      if (!started) {
+        startBattle();
+        return;
+      }
+      currentAge = 0;
+      finished = false;
+      playing = true;
+      lastTime = 0;
+      lastEventKey = '';
+      resultOverlay.classList.add('is-hidden');
+      updatePlayIcon();
+      updateHud();
+      draw();
+      scheduleFrame();
+    }
+
+    function toggleBattle() {
+      if (!started) {
+        if (!draftOverlay.classList.contains('is-hidden')) return;
+        startBattle();
+        return;
+      }
+      if (finished) {
+        restartBattle();
+        return;
+      }
+      playing = !playing;
+      lastTime = 0;
+      updatePlayIcon();
+      if (playing) scheduleFrame();
+    }
+
+    function showDraft() {
+      playing = false;
+      updatePlayIcon();
+      resultOverlay.classList.add('is-hidden');
+      draftOverlay.classList.remove('is-hidden');
+      renderDraft();
+    }
+
+    function showResult() {
+      const final = getRanking(maxAge);
+      const winner = final[0];
+      resultKicker.textContent = `本局赢家 · ${RULES[selectedRule].label}`;
+      resultTitle.textContent = winner.figure.name;
+      resultTitle.style.color = winner.figure.color;
+      winnerReason.textContent = RULES[selectedRule].reason(winner.figure, winner.metrics);
+      finalRanking.innerHTML = final.map((entry, index) => `
+        <span style="--fighter:${entry.figure.color}">${index + 1} · ${entry.figure.name} ${Math.round(entry.score)}</span>
+      `).join('');
+      resultOverlay.classList.remove('is-hidden');
+    }
+
+    fighterGrid.addEventListener('click', (event) => {
+      const button = event.target.closest('.fighter-btn');
+      if (!button) return;
+      const id = button.dataset.id;
+      if (selectedIds.includes(id)) {
+        selectedIds = selectedIds.filter((selectedId) => selectedId !== id);
+      } else if (selectedIds.length < 4) {
+        selectedIds = [...selectedIds, id];
+      }
+      renderDraft();
+      renderScoreboard();
+      draw();
+    });
+
+    ruleTabs.addEventListener('click', (event) => {
+      const button = event.target.closest('.rule-btn');
+      if (!button) return;
+      selectedRule = button.dataset.rule;
+      renderDraft();
+      renderScoreboard();
+      draw();
+    });
+
+    startBtn.addEventListener('click', startBattle);
+    playBtn.addEventListener('click', toggleBattle);
+    restartBtn.addEventListener('click', restartBattle);
+    draftBtn.addEventListener('click', showDraft);
+    replayBtn.addEventListener('click', restartBattle);
+    redraftBtn.addEventListener('click', showDraft);
+
+    speedBtn.addEventListener('click', () => {
+      speedIndex = (speedIndex + 1) % SPEEDS.length;
+      speedBtn.textContent = `${SPEEDS[speedIndex].toFixed(1)}×`;
+    });
+
+    infoBtn.addEventListener('click', () => infoDialog.showModal());
+    closeInfoBtn.addEventListener('click', () => infoDialog.close());
+    infoDialog.addEventListener('click', (event) => {
+      if (event.target === infoDialog) infoDialog.close();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.code !== 'Space' || infoDialog.open) return;
+      const tag = event.target instanceof Element ? event.target.tagName : '';
+      if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT') return;
+      event.preventDefault();
+      toggleBattle();
+    });
+
+    window.addEventListener('resize', resize);
+    renderDraft();
+    renderScoreboard();
+    updateHud();
+    resize();
+  </script>
+</body>
+</html>
